@@ -39,5 +39,8 @@ namespace :dev do
       end
     end
 
+    desc "generate everything"
+    task :all => [:users, :projects]
+
   end
 end
