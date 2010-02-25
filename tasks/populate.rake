@@ -26,7 +26,7 @@ namespace :dev do
       end
     end
     
-    desc "gemerate some user fake data"
+    desc "generate some user fake data"
     task :users => :prepare do
       User.populate 10..30 do |u|
         u.firstname     = Faker::Name.first_name
