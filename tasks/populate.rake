@@ -15,7 +15,7 @@ namespace :dev do
         raise e
       end
     end
-    
+
     desc "generate default issue statuses"
     task :issue_statuses => :prepare do
       IssueStatus.create(:name => "Closed", :default_done_ratio => 100)
@@ -26,7 +26,7 @@ namespace :dev do
       IssueStatus.create(:name => "Duplicate")
       IssueStatus.create(:name => "New")
     end
-    
+
     desc "generate some project fake projects"
     task :projects => [:prepare, :users, :issue_statuses] do
       Project.populate 2..4 do |p|
@@ -35,12 +35,12 @@ namespace :dev do
         p.created_on        = 3.years.ago..1.year.ago
         p.identifier        = Faker::Company.name
         IssueCategory.populate 1 do |c|
-            c.name        = Faker::Company.bs.slice(0..28)
-            c.project_id  = p.id
+          c.name        = Faker::Company.bs.slice(0..28)
+          c.project_id  = p.id
         end
       end
     end
-    
+
     desc "generate some issues"
     task :issues => :projects do
       Issue.populate 50..100 do |i|
@@ -58,7 +58,7 @@ namespace :dev do
         i.estimated_hours = 1..10
       end
     end
-    
+
     desc "generate some user fake data"
     task :users => :prepare do
       User.populate 10..30 do |u|
