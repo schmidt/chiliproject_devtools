@@ -73,7 +73,7 @@ namespace :dev do
     end
 
     desc "generate everything"
-    task :all => [:users, :projects]
+    task :all => [:users, :projects, :issues]
 
   end
 end
