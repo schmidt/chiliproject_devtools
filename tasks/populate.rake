@@ -16,13 +16,42 @@ namespace :dev do
       end
     end
     
-    desc "generate some project fake data"
-    task :projects => :prepare do
+    desc "generate default issue statuses"
+    task :issue_statuses => :prepare do
+      IssueStatus.create(:name => "Closed", :default_done_ratio => 100)
+      IssueStatus.create(:name => "In Review", :default_done_ratio => 80)
+      IssueStatus.create(:name => "Done", :default_done_ratio => 80)
+      IssueStatus.create(:name => "In progress", :default_done_ratio => 50)
+      IssueStatus.create(:name => "Rejected")
+      IssueStatus.create(:name => "Duplicate")
+      IssueStatus.create(:name => "New")
+    end
+    
+    desc "generate some project fake projects"
+    task :projects => [:prepare, :users, :issue_statuses] do
       Project.populate 2..4 do |p|
-        p.name        = Populator.words(1..3).titleize
-        p.description = Faker::Lorem.paragraphs
-        p.created_on  = 3.years.from_now..1.year.from_now
-        p.identifier  = "project" + Project.count.to_s
+        p.name              = Populator.words(1..3).titleize
+        p.description       = Faker::Lorem.paragraphs
+        p.created_on        = 3.years.ago..1.year.ago
+        p.identifier        = Faker::Company.name
+        IssueCategory.populate (2..5) do |c|
+          c.name        = Faker::Company.bs
+          c.project_id  = p.id
+        end
+        Issue.populate 50..100 do |i|
+          i.project_id      = p.id
+          i.subject         = Faker::Company.catch_phrase
+          i.description     = Faker::Lorem.paragraphs
+          i.due_date        = 3.years.from_now..1.year.from_now
+          i.category_id     = IssueCategory.all.rand.id
+          i.status_id       = IssueStatus.all.rand.id
+          i.assigned_to_id  = User.all.rand.id
+          i.created_on      = 3.years.ago..1.year.ago
+          i.updated_on      = 1.year.ago..Time.now
+          i.start_date      = 1.year.ago..Time.now
+          i.done_ratio      = 80..100
+          i.estimated_hours = 1..10
+        end
       end
     end
     
@@ -34,8 +63,8 @@ namespace :dev do
         name            = "#{u.firstname} #{u.lastname}"
         u.login         = Faker::Internet.user_name name
         u.mail          = Faker::Internet.email name
-        u.created_on    = 3.years.from_now..1.year.from_now
-        u.last_login_on = 1.year.from_now..Time.now
+        u.created_on    = 3.years.ago..1.year.ago
+        u.last_login_on = 1.year.ago..Time.now
       end
     end
 
