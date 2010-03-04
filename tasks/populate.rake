@@ -34,24 +34,28 @@ namespace :dev do
         p.description       = Faker::Lorem.paragraphs
         p.created_on        = 3.years.ago..1.year.ago
         p.identifier        = Faker::Company.name
-        IssueCategory.populate (2..5) do |c|
-          c.name        = Faker::Company.bs
-          c.project_id  = p.id
+        IssueCategory.populate 1 do |c|
+            c.name        = Faker::Company.bs.slice(0..28)
+            c.project_id  = p.id
         end
-        Issue.populate 50..100 do |i|
-          i.project_id      = p.id
-          i.subject         = Faker::Company.catch_phrase
-          i.description     = Faker::Lorem.paragraphs
-          i.due_date        = 3.years.from_now..1.year.from_now
-          i.category_id     = IssueCategory.all.rand.id
-          i.status_id       = IssueStatus.all.rand.id
-          i.assigned_to_id  = User.all.rand.id
-          i.created_on      = 3.years.ago..1.year.ago
-          i.updated_on      = 1.year.ago..Time.now
-          i.start_date      = 1.year.ago..Time.now
-          i.done_ratio      = 80..100
-          i.estimated_hours = 1..10
-        end
+      end
+    end
+    
+    desc "generate some issues"
+    task :issues => :projects do
+      Issue.populate 50..100 do |i|
+        i.project_id      = Project.find(rand(Project.count) + 1).id
+        i.subject         = Faker::Company.catch_phrase
+        i.description     = Faker::Lorem.paragraphs
+        i.due_date        = 3.years.from_now..1.year.from_now
+        i.category_id     = IssueCategory.find(rand(IssueCategory.count) + 1).id
+        i.status_id       = IssueStatus.find(rand(IssueStatus.count) + 1).id
+        i.assigned_to_id  = User.find(rand(User.count) + 1).id
+        i.created_on      = 3.years.ago..1.year.ago
+        i.updated_on      = 1.year.ago..Time.now
+        i.start_date      = 1.year.ago..Time.now
+        i.done_ratio      = 80..100
+        i.estimated_hours = 1..10
       end
     end
     
