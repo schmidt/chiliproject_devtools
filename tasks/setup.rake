@@ -1,7 +1,7 @@
 namespace :dev do
   task :prepare_setup do
     ENV['REDMINE_LANG'] ||= 'en'
-    warn "skiped dev:populate:all"
+    warn "skipped dev:populate:all"
   end
   desc "does all database tasks necessary for a clean redmine install"
   task :setup => %w[
