@@ -71,9 +71,8 @@ namespace :dev do
         u.last_login_on = 1.year.ago..Time.now
       end
     end
-
-    desc "generate everything"
-    task :all => [:users, :projects, :issues]
-
   end
+
+  desc "generate everything"
+  task :populate => %w[populate:users populate:projects populate:issues]
 end
