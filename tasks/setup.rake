@@ -11,6 +11,5 @@ namespace :dev do
     generate_session_store prepare_setup
     db:migrate redmine:load_default_data
     db:migrate:plugins db:schema:dump db:test:prepare
-    populate
   ]
 end
