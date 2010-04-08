@@ -2,7 +2,10 @@ namespace :dev do
   task :prepare_setup do
     ENV['REDMINE_LANG'] ||= 'en'
     ENV['VERBOSE'] ||= '0'
-    Rake::Task["db:drop:all"].invoke
+    begin
+      Rake::Task["db:drop:all"].invoke      
+    rescue Exception => e
+    end
     Rake::Task["db:create:all"].invoke
   end
   desc "does all database tasks necessary for a clean redmine install"
