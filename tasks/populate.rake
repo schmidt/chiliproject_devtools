@@ -87,6 +87,7 @@ namespace :dev do
         u.mail          = Faker::Internet.email name
         u.created_on    = 3.years.ago..1.year.ago
         u.last_login_on = 1.year.ago..Time.now
+        u.hashed_password = User.hash_password("initial123")
       end
     end
   end
