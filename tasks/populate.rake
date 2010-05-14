@@ -102,7 +102,7 @@ namespace :dev do
     end
     
     desc "generate some issue custom fields with values"
-    task :issue_custom_fields => [:prepare, :projects] do
+    task :issue_custom_fields => [:prepare, :projects, :issues] do
       IssueCustomField.populate(Project.count) do |f|
         f.type            = "IssueCustomField"
         f.name            = "CustomField #{Faker::Company.bs.split.first}"
@@ -125,9 +125,9 @@ namespace :dev do
             v.customized_type = "Issue"
             v.customized_id   = project.issues[rand(project.issues.count) - 1].id
             v.custom_field_id = f.id
-            letters = 3.times.collect {|i| ("A".."Z").to_a.shuffle.first}
-            numbers = 2.times.collect {|i| ("0".."9").to_a.shuffle.first}
-            type    = ["A", "B", "E", "G"].shuffle.first          
+            letters = 3.times.collect {|i| ("A".."K").to_a.shuffle.first}
+            numbers = 2.times.collect {|i| ("0".."4").to_a.shuffle.first}
+            type    = ["A", "B", "E", "G"].shuffle.first
             v.value           = letters.join + numbers.join + type
           end
         end
@@ -172,8 +172,8 @@ namespace :dev do
     end
 
     desc "Generate some time entries"
-    task :time_entries => [:prepare] do
-      TimeEntry.populate 200..500 do |t|
+    task :time_entries => [:prepare, :issues] do
+      TimeEntry.populate ((Issue.count)..(Issue.count * 2)) do |t|
         issue = Issue.find(rand(Issue.count) + 1)
         t.project_id  = issue.project.id
         t.user_id     = issue.author.id
@@ -188,9 +188,46 @@ namespace :dev do
         t.tweek       = spent_on.cweek
       end
     end
+    
+    desc "Assign users to projects"
+    task :users_projects => [:users, :projects] do
+      User.all.each do |u|
+        projects = (Project.all / [1,2,3].shuffle.first).first
+        projects.each do |p|
+          m = Member.create!(:user_id => u.id, :project_id => p.id)
+          role = Role.collect{|r| !builtin}.shuffle.first
+          MemberRole.create!(:member_id => m.id, :role_id => role.id)
+        end
+      end
+    end
+    
+    desc "Generate some time rates"
+    task :rates => [:prepare, :users_projects] do
+      User.count.times do |idx|
+        Rate.populate 1 do |r|
+          r.valid_from = 3.years.ago..2.years.ago
+          r.rate       = 5..50
+          r.user_id    = idx + 1
+          r.type = DefaultHourlyRate
+        end
+      end
+      Project.all.each do |p|
+        p.users.each do |u|
+          if (rand(2) == 0) # 50/50 chance that this user has a project specific rate
+            Rate.populate 1..3 do |r|
+              r.valid_from  = (50-r.id).days.ago
+              r.rate        = 10.50
+              r.user_id     = u.id
+              r.project_id  = p.id
+              r.type        = HourlyRate
+            end
+          end
+        end
+      end
+    end
 
     desc "Generate some cost_types"
-    task :cost_types => [:time_entries] do
+    task :cost_types => [:prepare] do
       CostType.populate 2..5 do |c|        
         unit = Faker::Lorem.words(1)
         c.name        = "A standard #{unit}"
@@ -203,9 +240,17 @@ namespace :dev do
       end.save!
     end
     
+    desc "Generate some cost rates"
+    task :cost_rates => [:cost_types] do
+      CostType.count.times do |c_id|
+        r.rate = 3..13
+        r.type = CostRate
+      end
+    end
+    
     desc "Generate some time entries"
-    task :cost_entries => [:time_entries, :cost_types] do
-      CostEntry.populate 200..500 do |t|
+    task :cost_entries => [:issues, :cost_types] do
+      CostEntry.populate (Issue.count..(Issue.count * 2)) do |t|
         issue = Issue.find(rand(Issue.count) + 1)
         t.project_id    = issue.project.id
         t.user_id       = issue.author.id
@@ -218,7 +263,6 @@ namespace :dev do
         t.tmonth        = spent_on.month
         t.tweek         = spent_on.cweek
         t.cost_type_id  = rand(CostType.count) + 1
-        t.costs         = 1..5
       end
     end
   end
