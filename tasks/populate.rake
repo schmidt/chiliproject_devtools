@@ -268,6 +268,7 @@ namespace :dev do
   end
 
   desc "generate everything"
-  task :populate => %w[populate:users populate:projects populate:subprojects populate:issues 
-    populate:issue_custom_fields populate:time_entries populate:cost_entries]
+  task :populate => %w[populate:users populate:projects populate:subprojects populate:users_projects 
+    populate:issues populate:issue_custom_fields populate:time_entries populate:cost_entries 
+    populate:cost_rates populate:rates]
 end
