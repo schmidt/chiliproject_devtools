@@ -42,11 +42,11 @@ namespace :dev do
     desc "generate some project fake projects"
     task :projects => [:prepare, :users, :issue_statuses] do
       Project.populate 4..8 do |p|
-        name = Populator.words(1..3).titleize
+        name = "#{Populator.words(1).titleize} #{p.id}"
         p.name              = name
         p.description       = Faker::Lorem.paragraphs
         p.created_on        = 3.years.ago..1.year.ago
-        p.identifier        = name.split(" ").first
+        p.identifier        = name
         p.is_public         = 1
         p.status            = 1
         p.lft               = p.id*2-1
@@ -69,34 +69,8 @@ namespace :dev do
       end
     end
     
-    desc "generate some subprojects"
+    desc "Make some subprojects"
     task :subprojects => [:prepare, :projects] do
-      Project.populate 4..8 do |p|
-        name = Populator.words(1..3).titleize
-        p.name              = name
-        p.description       = Faker::Lorem.paragraphs
-        p.created_on        = 1.year.ago..10.days.ago
-        p.identifier        = name.split(" ").first
-        p.is_public         = 1
-        p.status            = 1
-        p.lft               = p.id*2-1
-        p.rgt               = p.id*2
-        p.homepage          = Faker::Internet.domain_name
-        Redmine::AccessControl.available_project_modules.each do |name|
-          EnabledModule.populate(1) do |m|
-            m.name = name.to_s
-            m.project_id = p.id
-          end
-        end
-        IssueCategory.populate 1 do |c|
-          c.name        = Faker::Company.bs.slice(0..28)
-          c.project_id  = p.id
-        end
-      end
-      Project.all.each do |p|
-        p.trackers = Tracker.all
-        p.save!
-      end
       top, bottom = Project.all / (Project.count / 2)
       bottom.each_with_index { |p,idx| p.set_parent!(top[idx]) }
     end
@@ -105,7 +79,7 @@ namespace :dev do
     task :issue_custom_fields => [:prepare, :projects, :issues] do
       IssueCustomField.populate(Project.count) do |f|
         f.type            = "IssueCustomField"
-        f.name            = "CustomField #{Faker::Company.bs.split.first}"
+        f.name            = "CustomField #{f.id}"
         f.field_format    = "string"
         f.possible_values = "--- []\n\n"
         f.min_length      = 0
