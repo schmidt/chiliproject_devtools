@@ -134,14 +134,15 @@ namespace :dev do
     desc "generate some user fake data"
     task :users => :prepare do
       User.populate 20..30 do |u|
-        u.firstname     = Faker::Name.first_name
-        u.lastname      = Faker::Name.last_name
-        name            = "#{u.firstname} #{u.lastname}"
-        u.login         = Faker::Internet.user_name name
-        u.mail          = Faker::Internet.email name
-        u.created_on    = 3.years.ago..1.year.ago
-        u.last_login_on = 1.year.ago..Time.now
+        u.firstname       = Faker::Name.first_name
+        u.lastname        = Faker::Name.last_name
+        name              = "#{u.firstname} #{u.lastname}"
+        u.login           = Faker::Internet.user_name name
+        u.mail            = Faker::Internet.email name
+        u.created_on      = 3.years.ago..1.year.ago
+        u.last_login_on   = 1.year.ago..Time.now
         u.hashed_password = User.hash_password("initial123")
+        u.status          = 1
       end
     end
 
@@ -168,32 +169,32 @@ namespace :dev do
       User.all.each do |u|
         projects = (Project.all / [1,2,3].shuffle.first).first
         projects.each do |p|
-          m = Member.create!(:user_id => u.id, :project_id => p.id)
-          role = Role.collect{|r| !builtin}.shuffle.first
-          MemberRole.create!(:member_id => m.id, :role_id => role.id)
+          Member.new.tap do |m|
+            m.user = u
+            m.roles << Role.all.select{|r| r.builtin == 0}.shuffle.first
+            m.project = p
+          end.save!
         end
       end
     end
     
     desc "Generate some time rates"
-    task :rates => [:prepare, :users_projects] do
+    task :rates => [:users_projects] do
       User.count.times do |idx|
-        Rate.populate 1 do |r|
+        DefaultHourlyRate.populate 1 do |r|
           r.valid_from = 3.years.ago..2.years.ago
           r.rate       = 5..50
           r.user_id    = idx + 1
-          r.type = DefaultHourlyRate
         end
       end
       Project.all.each do |p|
         p.users.each do |u|
           if (rand(2) == 0) # 50/50 chance that this user has a project specific rate
-            Rate.populate 1..3 do |r|
+            HourlyRate.populate 1..3 do |r|
               r.valid_from  = (50-r.id).days.ago
               r.rate        = 10.50
               r.user_id     = u.id
               r.project_id  = p.id
-              r.type        = HourlyRate
             end
           end
         end
@@ -216,9 +217,13 @@ namespace :dev do
     
     desc "Generate some cost rates"
     task :cost_rates => [:cost_types] do
-      CostType.count.times do |c_id|
-        r.rate = 3..13
-        r.type = CostRate
+      CostType.all.each do |ct|
+        User.current = User.first
+        CostRate.create!(
+            :valid_from => 3.years.ago.to_date,
+            :rate => (3..13).to_a.shuffle.first,
+            :user => User.first,
+            :cost_type => ct)
       end
     end
     
