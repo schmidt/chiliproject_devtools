@@ -109,7 +109,7 @@ namespace :dev do
             numbers = 2.times.collect {|i| ("0".."2").to_a.shuffle.first}
             type    = ["A", "B", "E", "G"].shuffle.first
             course  = letters.join + numbers.join + type
-            ebook   = "A#{("0".."2").to_a.shuffle.first}_M#{("0".."2").to_a.shuffle.first}_L#{("0".."2").to_a.shuffle.first}"
+            ebook   = "A#{("0".."2").to_a.shuffle.first*2}_M#{("0".."2").to_a.shuffle.first*2}_L#{("0".."2").to_a.shuffle.first*2}"
             bogus   = "FooBar"
             
             v.value = [course, course, course, ebook, ebook, bogus].shuffle.first
