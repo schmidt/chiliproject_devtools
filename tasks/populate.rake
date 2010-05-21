@@ -91,6 +91,11 @@ namespace :dev do
         f.searchable      = 1
         f.editable        = 1
       end
+      Tracker.all.each do |t|
+        IssueCustomField.all.each do |cf|
+          t.custom_fields << cf
+        end
+      end
       IssueCustomField.all.each do |f|
         (rand(3) + 1).times do |i|
           project = Project.find(rand(Project.count) + 1)
@@ -99,10 +104,15 @@ namespace :dev do
             v.customized_type = "Issue"
             v.customized_id   = project.issues[rand(project.issues.count) - 1].id
             v.custom_field_id = f.id
-            letters = 3.times.collect {|i| ("A".."K").to_a.shuffle.first}
-            numbers = 2.times.collect {|i| ("0".."4").to_a.shuffle.first}
+            
+            letters = 3.times.collect {|i| ("A".."C").to_a.shuffle.first}
+            numbers = 2.times.collect {|i| ("0".."2").to_a.shuffle.first}
             type    = ["A", "B", "E", "G"].shuffle.first
-            v.value           = letters.join + numbers.join + type
+            course  = letters.join + numbers.join + type
+            ebook   = "A#{("0".."2").to_a.shuffle.first}_M#{("0".."2").to_a.shuffle.first}_L#{("0".."2").to_a.shuffle.first}"
+            bogus   = "FooBar"
+            
+            v.value = [course, course, course, ebook, ebook, bogus].shuffle.first
           end
         end
       end
@@ -227,7 +237,7 @@ namespace :dev do
       end
     end
     
-    desc "Generate some time entries"
+    desc "Generate some cost entries"
     task :cost_entries => [:issues, :cost_types] do
       CostEntry.populate (Issue.count..(Issue.count * 2)) do |t|
         issue = Issue.find(rand(Issue.count) + 1)
