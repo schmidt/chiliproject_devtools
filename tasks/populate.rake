@@ -153,6 +153,8 @@ namespace :dev do
         u.last_login_on   = 1.year.ago..Time.now
         u.hashed_password = User.hash_password("initial123")
         u.status          = 1
+        u.mail_notification = false
+        u.admin           = (rand() >= 0.5)
       end
     end
 
