@@ -1,3 +1,12 @@
+begin
+  require 'ci/reporter/rake/rspec'     # use this if you're using RSpec
+  require 'ci/reporter/rake/cucumber'  # use this if you're using Cucumber
+  require 'ci/reporter/rake/test_unit' # use this if you're using Test::Unit
+rescue LoadError
+  puts ("Missing the CI Reporter gem. Install timfel-ci_reporter or " +
+    "you won't get XML output for the CI")
+end
+
 # This module provides various helper methods for the continuous integration system, 
 # like (de-)activating plugins, setting up the DB and running different test configurations
 module DevHelper
@@ -13,8 +22,21 @@ module DevHelper
     File.expand_path File.join(RAILS_ROOT, "vendor", "plugins")
   end
   
+  def invoke_ci_reporter
+    begin
+      yield
+    rescue RuntimeError => e
+      puts "CI Reporter disabled"
+    end
+  end
+  
   def run_unit_tests(plugin)
-    (config[:unit_tests][:tasks] || []).each do |t|
+    return if config[:unit_tests][:tasks].nil?
+    invoke_ci_reporter do
+      Rake::Task["ci:setup:testunit"].invoke
+      Rake::Task["ci:setup:rspec"].invoke
+    end
+    config[:unit_tests][:tasks].each do |t|
       system_rake 'dev:setup'
       Rake::Task[t.to_sym].invoke
     end
@@ -22,6 +44,11 @@ module DevHelper
   
   def run_integration_tests(plugin)
     return if config[:integration_sets].nil?
+    invoke_ci_reporter do
+      Rake::Task["ci:setup:testunit"].invoke
+      Rake::Task["ci:setup:rspec"].invoke
+    end
+    
     config[:integration_sets].keys.each do |iset|
       puts "Running integration tests for #{plugin} in #{iset} environment"
       
