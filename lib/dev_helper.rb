@@ -14,13 +14,14 @@ module DevHelper
   end
   
   def run_unit_tests(plugin)
-    config[:unit_tests][:tasks].each do |t|
+    (config[:unit_tests][:tasks] || []).each do |t|
       system_rake 'dev:setup'
       Rake::Task[t.to_sym].invoke
     end
   end
   
   def run_integration_tests(plugin)
+    return if config[:integration_sets].nil?
     config[:integration_sets].keys.each do |iset|
       puts "Running integration tests for #{plugin} in #{iset} environment"
       
