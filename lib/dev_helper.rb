@@ -49,7 +49,11 @@ module DevHelper
   end
   
   def integration_tests(plugin)
-    return if config[:integration_sets].nil?
+    return unless config.has_key? :integration_sets
+    if config[:integration_sets].nil?
+      Rake::Task["ci:setup:cucumber_report_cleanup"].invoke
+      return system_rake "cucumber:ci"
+    end
     invoke_ci_reporter do
       Rake::Task["ci:setup:testunit"].invoke
       Rake::Task["ci:setup:rspec"].invoke
@@ -86,9 +90,10 @@ module DevHelper
         end
       end
       
-      system_rake "cucumber:html"
+      system_rake "cucumber:ci"
       
       config[:integration_sets][iset].each do |t|
+        next if t.to_s == plugin.to_s
         Rake::Task[:'dev:plugins:disable'].invoke(t.to_s)
       end
     end
