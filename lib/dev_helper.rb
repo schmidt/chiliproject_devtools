@@ -30,7 +30,13 @@ module DevHelper
     end
   end
   
-  def run_unit_tests(plugin)
+  ['unit', 'integration'].each do |t|
+    define_method(:"run_#{t}_tests") do |plugin|
+      run_cruise_task(plugin, t)
+    end
+  end
+  
+  def unit_tests(plugin)
     return if config[:unit_tests][:tasks].nil?
     invoke_ci_reporter do
       Rake::Task["ci:setup:testunit"].invoke
@@ -42,7 +48,7 @@ module DevHelper
     end
   end
   
-  def run_integration_tests(plugin)
+  def integration_tests(plugin)
     return if config[:integration_sets].nil?
     invoke_ci_reporter do
       Rake::Task["ci:setup:testunit"].invoke
@@ -88,21 +94,25 @@ module DevHelper
     end
   end
   
-  def run_cruise_task_in_testing_env(plugin)
-    p "rake #{plugin}:cruise:unit"
-    system_rake "#{plugin}:cruise:unit"
-    p "rake #{plugin}:cruise:integration"
-    system_rake "#{plugin}:cruise:integration"
-    disable_finn_plugins :except => ([plugin])
+  def run_cruise_task(plugin, *args)
+    args = ['unit', 'integration'] if args.empty?    
+    ENV['RAILS_ENV'] = 'test'
+    cruise_task_prepare(plugin)
+    args.each do |task|
+      system_rake "#{plugin}:cruise:#{task}:internal"
+    end
+    cruise_task_clean(plugin)
   end
   
-  def run_cruise_task(plugin)
-    ENV['RAILS_ENV'] = 'test'
+  def cruise_task_prepare(plugin)
     plugs = (config[:unit_tests][:required_plugins] || []) + [plugin]    
     disable_finn_plugins :except => plugs
     enable_finn_plugins plugs
     Rake::Task[:'dev:setup'].invoke
-    system_rake "#{plugin}:cruise_testing"
+  end
+  
+  def cruise_task_clean(plugin)
+    disable_finn_plugins :except => ([plugin])
   end
 
   def reset_db

@@ -74,13 +74,17 @@ namespace :#{plugin} do
     run_integration_tests('#{plugin}')
   end
   
-  task :cruise_testing => :'dev:setup' do
-    run_cruise_task_in_testing_env('#{plugin}')
-  end
-  
   desc 'Run cruise task for #{plugin}'
   task :cruise do
     run_cruise_task('#{plugin}')
+  end
+  
+  task :'cruise:unit:internal' do
+    unit_tests('redmine_picockpit_privacy')
+  end
+  
+  task :'cruise:integration:internal' do
+    integration_tests('redmine_picockpit_privacy')
   end
 end
 "
