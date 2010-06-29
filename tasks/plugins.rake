@@ -54,29 +54,29 @@ namespace :dev do
   - :redmine_costs"  
         end
         File.open File.join(tasks_path, "cruise.rake"), 'a' do |f|
-          f << "
+          f <<RUBY
 require 'yaml'
 
-namespace :#{plugin} do
+namespace :"#{plugin}" do
   include DevHelper
   
   def config
     YAML.load_file File.expand_path(File.join(__FILE__, '..', 'cruise.yml'))
   end
   
-  desc 'Run unit tests for #{plugin}'
+  desc "Run unit tests for #{plugin}"
   task :'cruise:unit' do
     run_unit_tests('#{plugin}')
   end
   
-  desc 'Run integration tests for #{plugin}'
+  desc "Run integration tests for #{plugin}"
   task :'cruise:integration' do
-    run_integration_tests('#{plugin}')
+    run_integration_tests("#{plugin}")
   end
   
-  desc 'Run cruise task for #{plugin}'
+  desc "Run cruise task for #{plugin}"
   task :cruise do
-    run_cruise_task('#{plugin}')
+    run_cruise_task("#{plugin}")
   end
   
   task :'cruise:unit:internal' do
@@ -87,7 +87,7 @@ namespace :#{plugin} do
     integration_tests('redmine_picockpit_privacy')
   end
 end
-"
+RUBY
         end
       end
     end

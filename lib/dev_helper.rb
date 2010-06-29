@@ -113,7 +113,7 @@ module DevHelper
     plugs = (config[:unit_tests][:required_plugins] || []) + [plugin]    
     disable_finn_plugins :except => plugs
     enable_finn_plugins plugs
-    Rake::Task[:'dev:setup'].invoke
+    reset_db
   end
   
   def cruise_task_clean(plugin)
@@ -124,7 +124,7 @@ module DevHelper
     ENV['REDMINE_LANG'] = 'en'
     ENV['VERBOSE'] = '0'
     begin
-      Rake::Task["db:drop"].invoke      
+      Rake::Task["db:drop"].invoke
     rescue Exception => e
     end
     Rake::Task["db:create"].invoke
