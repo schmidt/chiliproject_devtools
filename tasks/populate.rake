@@ -22,7 +22,7 @@ namespace :dev do
         p.description       = Faker::Lorem.paragraphs
         p.created_on        = 3.years.ago..1.year.ago
         p.identifier        = name.underscore
-        p.is_public         = 1
+        p.is_public         = true
         p.status            = 1
         p.lft               = p.id*2-1
         p.rgt               = p.id*2
@@ -119,7 +119,7 @@ namespace :dev do
 
     desc "generate some project fake projects"
     task :projects, :count, :needs => [:prepare, :users, :issue_statuses] do |t, args|
-      count = args[:count].to_i unless args.count.nil?
+      count = args[:count].to_i unless (args[:count].to_i == 0)
       count ||= 4..8
       populate_project(count)
     end
@@ -177,7 +177,7 @@ namespace :dev do
 
     desc "generate some issues"
     task :issues, :count, :needs => [:users, :projects] do |t, args|
-      count = args[:count].to_i unless args.count.nil?
+      count = args[:count].to_i unless (args[:count].to_i == 0)
       count ||= 500..1000
       Project.count.times do |id|        
         populate_issues(count, id)
@@ -186,7 +186,7 @@ namespace :dev do
 
     desc "generate some user fake data"
     task :users, :count, :needs => [:prepare] do |t, args|
-      count = args[:count].to_i unless args.count.nil?
+      count = args[:count].to_i unless (args[:count].to_i == 0)
       count ||= 20..30
       populate_users count
     end
@@ -248,7 +248,7 @@ namespace :dev do
 
     desc "Generate some cost_types"
     task :cost_types, :count, :needs => [:prepare] do |t, args|
-      count = args.count.to_i unless args.count.nil?
+      count = args[:count].to_i unless (args[:count].to_i == 0)
       count ||= 2..5
       populate_cost_types count
       CostType.first.tap do |c|
