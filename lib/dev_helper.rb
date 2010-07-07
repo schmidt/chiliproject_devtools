@@ -144,7 +144,7 @@ module DevHelper
   end
 
   def enable_finn_plugins(plugins = [])
-    (plugins - (active_plugins.collect{|f| File.basename f})).each do |p|
+    (plugins.collect(&:to_s) - (active_plugins.collect{|f| File.basename f})).each do |p|
       FileUtils.ln_s(File.join(cockpit_svn_root, p), File.join(plugin_root, p))
     end
   end
