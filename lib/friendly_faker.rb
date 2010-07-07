@@ -31,7 +31,11 @@ Faker.class_eval do
   Faker::Internet.class_eval do
     class << self
       def domain_name
-        "http://www.finn.de"
+        "http://www.example.com"
+      end
+      
+      def email(name)
+        name.downcase.gsub(" ", ".") + "@example.com"
       end
     end
   end
