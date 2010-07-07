@@ -24,12 +24,12 @@ namespace :dev do
         p.name              = name.slice(0..29)
         p.description       = Faker::Lorem.paragraphs
         p.created_on        = 3.months.ago..1.month.ago
-        p.identifier        = name.underscore[([-name.underscore.length, -19].max)..-1]
+        p.identifier        = name.underscore[([-name.underscore.length, -18].max)..-1]
         p.is_public         = true
         p.status            = 1
         p.lft               = p.id*2-1
         p.rgt               = p.id*2
-        p.homepage          = Faker::Internet.domain_name.slice(0..254)
+        p.homepage          = Faker::Internet.domain_name.slice(0..253)
         Redmine::AccessControl.available_project_modules.each do |name|
           EnabledModule.populate(1) do |m|
             m.name = name.to_s
@@ -50,7 +50,7 @@ namespace :dev do
     def populate_issues(range, project_id)
       Issue.populate range do |i|
         i.project_id      = project_id + 1
-        i.subject         = Faker::Company.bs.slice(0..254)
+        i.subject         = Faker::Company.bs.slice(0..253)
         i.description     = Faker::Lorem.paragraphs
         i.due_date        = 3.months.from_now..1.month.from_now
         i.category_id     = rand(IssueCategory.count) + 1
@@ -73,11 +73,11 @@ namespace :dev do
       User.populate range do |u|
         first, last, name, mail, login = nil
         loop do
-          first = Faker::Name.first_name.slice(0..29)
-          last  = Faker::Name.last_name.slice(0..29)
+          first = Faker::Name.first_name.slice(0..28)
+          last  = Faker::Name.last_name.slice(0..28)
           name  = "#{first} #{last}"
-          mail  = Faker::Internet.email(name).slice(0..59)
-          login = Faker::Internet.user_name(name).slice(0..29)
+          mail  = Faker::Internet.email(name).slice(0..58)
+          login = Faker::Internet.user_name(name).slice(0..28)
           break unless used_names.include? login
         end
         used_names << login
@@ -148,9 +148,9 @@ namespace :dev do
     
     desc "generate some issue custom fields with values"
     task :issue_custom_fields => [:prepare, :projects, :issues] do
-      IssueCustomField.populate(Project.count) do |f|
+      IssueCustomField.populate(5) do |f|
         f.type            = "IssueCustomField"
-        f.name            = Faker::Company.catch_phrase_id.slice(0..29)
+        f.name            = Faker::Company.catch_phrase_id.slice(0..28)
         f.field_format    = "string"
         f.possible_values = "--- []\n\n"
         f.min_length      = 0
@@ -215,7 +215,7 @@ namespace :dev do
         t.user_id     = issue.author.id
         t.issue_id    = issue.id
         t.hours       = 1..10
-        t.comments    = Faker::Lorem.paragraphs.slice(0..254)
+        t.comments    = ""
         t.activity_id = 9..10
         t.spent_on    = spent_on
         t.tyear       = spent_on.year
@@ -229,6 +229,7 @@ namespace :dev do
       User.all[2..-1].each do |u|
         projects = (Project.all / [1,2,3].shuffle.first).first
         projects.each do |p|
+          next if p.members.collect(&:user_id).include? u.id
           Member.new.tap do |m|
             m.user = u
             m.roles << Role.all.select{|r| r.builtin == 0}.shuffle.first
@@ -241,6 +242,7 @@ namespace :dev do
     desc "Generate some time rates"
     task :rates => [:users_projects] do
       (User.count - 2).times do |idx|
+        next unless User.find(idx + 3).default_rates.empty?
         DefaultHourlyRate.populate 1 do |r|
           r.valid_from = 3.months.ago..2.months.ago
           r.rate       = 5..50
@@ -293,7 +295,7 @@ namespace :dev do
         t.user_id       = issue.author.id
         t.issue_id      = issue.id
         t.units         = 1..10
-        t.comments      = Faker::Lorem.paragraphs.slice(0..254)
+        t.comments      = ""
         t.blocked       = false
         t.spent_on      = spent_on
         t.tyear         = spent_on.year
