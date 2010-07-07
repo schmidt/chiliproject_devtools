@@ -1,4 +1,5 @@
 $LOAD_PATH.unshift(File.expand_path(File.join(__FILE__, "..", "..", "lib")))
+require 'customized_faker'
 
 namespace :dev do
   namespace :populate do
@@ -21,7 +22,7 @@ namespace :dev do
         p.name              = name
         p.description       = Faker::Lorem.paragraphs
         p.created_on        = 3.years.ago..1.year.ago
-        p.identifier        = name.underscore
+        p.identifier        = name.underscore[([-name.underscore.length, -19].max)..-1]
         p.is_public         = true
         p.status            = 1
         p.lft               = p.id*2-1
@@ -34,7 +35,7 @@ namespace :dev do
           end
         end
         IssueCategory.populate 1 do |c|
-          c.name        = Faker::Company.bs.slice(0..28)
+          c.name        = Faker::Company.bs_category.slice(0..28)
           c.project_id  = p.id
         end
       end
@@ -47,7 +48,7 @@ namespace :dev do
     def populate_issues(range, project_id)
       Issue.populate range do |i|
         i.project_id      = project_id + 1
-        i.subject         = Faker::Company.catch_phrase
+        i.subject         = Faker::Company.bs
         i.description     = Faker::Lorem.paragraphs
         i.due_date        = 3.years.from_now..1.year.from_now
         i.category_id     = rand(IssueCategory.count) + 1
@@ -82,7 +83,7 @@ namespace :dev do
     end
     
     def populate_cost_types(range)
-      CostType.populate range do |c|        
+      CostType.populate range do |c|
         unit = Faker::Lorem.words(1)
         c.name        = "A standard #{unit}"
         c.unit        = unit
@@ -141,12 +142,12 @@ namespace :dev do
         f.possible_values = "--- []\n\n"
         f.min_length      = 0
         f.max_length      = 0
-        f.is_required     = 0
-        f.is_for_all      = 0
-        f.is_filter       = 1
+        f.is_required     = false
+        f.is_for_all      = false
+        f.is_filter       = true
         f.position        = 1
-        f.searchable      = 1
-        f.editable        = 1
+        f.searchable      = true
+        f.editable        = true
       end
       Tracker.all.each do |t|
         IssueCustomField.all.each do |cf|
@@ -251,7 +252,7 @@ namespace :dev do
       count = args[:count].to_i unless (args[:count].to_i == 0)
       count ||= 2..5
       populate_cost_types count
-      CostType.first.tap do |c|
+      CostType.first.tap do |c|        
         c.default = true
       end.save!
     end
@@ -277,8 +278,9 @@ namespace :dev do
         t.issue_id      = issue.id
         t.units         = 1..10
         t.comments      = Faker::Lorem.paragraphs
+        t.blocked       = false
         spent_on = (1..100).to_a.shuffle.first.days.ago.send(:to_date)
-        t.spent_on      = spent_on
+        t.spent_on      = spent_on        
         t.tyear         = spent_on.year
         t.tmonth        = spent_on.month
         t.tweek         = spent_on.cweek
