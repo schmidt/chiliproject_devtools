@@ -42,17 +42,18 @@ module DevHelper
       Rake::Task["ci:setup:rspec"].invoke
     end
     config[:unit_tests][:tasks].each do |t|
-      system_rake 'dev:setup'
+      reset_db
       Rake::Task[t.to_sym].invoke
     end
   end
   
   def integration_tests(plugin)
     return unless config.has_key? :integration_sets
-    if config[:integration_sets].nil?
-      Rake::Task["ci:setup:cucumber_report_cleanup"].invoke
-      return system_rake "cucumber:ci"
+    if config[:integration_sets].nil?      
+      FileUtils.rm Dir.glob("#{RAILS_ROOT}/features/reports/*")
+      Rake::Task["cucumber:ci"].invoke
     end
+    
     invoke_ci_reporter do
       Rake::Task["ci:setup:testunit"].invoke
       Rake::Task["ci:setup:rspec"].invoke
@@ -63,11 +64,7 @@ module DevHelper
       
       config[:unit_tests][:required_plugins] ||= []
       disable_finn_plugins :except => (config[:unit_tests][:required_plugins] + [plugin])
-      reset_db
-      
-      config[:integration_sets][iset].each do |t|
-        Rake::Task[:'dev:plugins:enable'].invoke(t.to_s)
-      end
+      enable_finn_plugins(config[:integration_sets][iset] || [])
       
       # Run unit tests again in integrated environment
       Rake::Task[:"#{plugin}:cruise:unit"].invoke
@@ -88,8 +85,8 @@ module DevHelper
           end
         end
       end
-      
-      system_rake "cucumber:ci"
+            
+      Rake::Task["cucumber:ci"].invoke
       
       config[:integration_sets][iset].each do |t|
         next if t.to_s == plugin.to_s
@@ -109,10 +106,9 @@ module DevHelper
   end
   
   def cruise_task_prepare(plugin)
-    plugs = (config[:unit_tests][:required_plugins] || []) + [plugin]    
+    plugs = (config[:unit_tests][:required_plugins] || []) + [plugin]
     disable_finn_plugins :except => plugs
     enable_finn_plugins plugs
-    reset_db
   end
   
   def cruise_task_clean(plugin)
@@ -120,17 +116,7 @@ module DevHelper
   end
 
   def reset_db
-    ENV['REDMINE_LANG'] = 'en'
-    ENV['VERBOSE'] = '0'
-    begin
-      Rake::Task["db:drop"].invoke
-    rescue Exception => e
-    end
-    Rake::Task["db:create"].invoke
-    %w(generate_session_store db:migrate redmine:load_default_data
-    db:migrate:plugins db:schema:dump db:test:prepare).each do |t|
-      Rake::Task[t.to_sym].invoke
-    end
+    Rake::Task["db:test:clone_structure"].invoke
   end
   
   def system_rake(task)
