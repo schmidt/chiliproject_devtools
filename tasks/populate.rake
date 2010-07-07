@@ -23,7 +23,7 @@ namespace :dev do
         used_names << name
         p.name              = name
         p.description       = Faker::Lorem.paragraphs
-        p.created_on        = 3.years.ago..1.year.ago
+        p.created_on        = 3.months.ago..1.month.ago
         p.identifier        = name.underscore[([-name.underscore.length, -19].max)..-1]
         p.is_public         = true
         p.status            = 1
@@ -52,14 +52,14 @@ namespace :dev do
         i.project_id      = project_id + 1
         i.subject         = Faker::Company.bs
         i.description     = Faker::Lorem.paragraphs
-        i.due_date        = 3.years.from_now..1.year.from_now
+        i.due_date        = 3.months.from_now..1.month.from_now
         i.category_id     = rand(IssueCategory.count) + 1
         i.status_id       = rand(IssueStatus.count) + 1
         i.assigned_to_id  = rand(User.count) + 1
         i.author_id       = rand(User.count) + 1
-        i.created_on      = 3.years.ago..1.year.ago
-        i.updated_on      = 1.year.ago..Time.now
-        i.start_date      = 1.year.ago..Time.now
+        i.created_on      = 3.months.ago..1.month.ago
+        i.updated_on      = 1.month.ago..Time.now
+        i.start_date      = 1.month.ago..Time.now
         i.done_ratio      = 80..100
         i.estimated_hours = 1..10
         i.tracker_id      = 1..3
@@ -75,8 +75,8 @@ namespace :dev do
         name              = "#{u.firstname} #{u.lastname}"
         u.login           = Faker::Internet.user_name name
         u.mail            = Faker::Internet.email name
-        u.created_on      = 3.years.ago..1.year.ago
-        u.last_login_on   = 1.year.ago..Time.now
+        u.created_on      = 3.months.ago..1.month.ago
+        u.last_login_on   = 1.month.ago..Time.now
         u.hashed_password = User.hash_password("initial123")
         u.status          = 1
         u.mail_notification = false
@@ -139,7 +139,7 @@ namespace :dev do
     task :issue_custom_fields => [:prepare, :projects, :issues] do
       IssueCustomField.populate(Project.count) do |f|
         f.type            = "IssueCustomField"
-        f.name            = "CustomField #{f.id}"
+        f.name            = "#{Faker::Company.catch_phrase_id}"
         f.field_format    = "string"
         f.possible_values = "--- []\n\n"
         f.min_length      = 0
@@ -170,7 +170,7 @@ namespace :dev do
             type    = ["A", "B", "E", "G"].shuffle.first
             course  = letters.join + numbers.join + type
             ebook   = "A#{("0".."2").to_a.shuffle.first*2}_M#{("0".."2").to_a.shuffle.first*2}_L#{("0".."2").to_a.shuffle.first*2}"
-            bogus   = "FooBar"
+            bogus   = "Evaluation required"
             
             v.value = [course, course, course, ebook, ebook, bogus].shuffle.first
           end
@@ -196,7 +196,7 @@ namespace :dev do
 
     desc "Generate some time entries"
     task :time_entries => [:prepare, :issues] do
-      TimeEntry.populate ((Issue.count)..(Issue.count * 2)) do |t|
+      TimeEntry.populate ((Issue.count)..(Issue.count * 3)) do |t|
         issue = Issue.find(rand(Issue.count) + 1)
         t.project_id  = issue.project.id
         t.user_id     = issue.author.id
@@ -230,7 +230,7 @@ namespace :dev do
     task :rates => [:users_projects] do
       User.count.times do |idx|
         DefaultHourlyRate.populate 1 do |r|
-          r.valid_from = 3.years.ago..2.years.ago
+          r.valid_from = 3.months.ago..2.months.ago
           r.rate       = 5..50
           r.user_id    = idx + 1
         end
@@ -264,7 +264,7 @@ namespace :dev do
       CostType.all.each do |ct|
         User.current = User.first
         CostRate.create!(
-            :valid_from => 3.years.ago.to_date,
+            :valid_from => 3.months.ago.to_date,
             :rate => (3..13).to_a.shuffle.first,
             :user => User.first,
             :cost_type => ct)
@@ -273,7 +273,7 @@ namespace :dev do
     
     desc "Generate some cost entries"
     task :cost_entries => [:issues, :cost_types] do
-      CostEntry.populate (Issue.count..(Issue.count * 2)) do |t|
+      CostEntry.populate (Issue.count..(Issue.count * 3)) do |t|
         issue = Issue.find(rand(Issue.count) + 1)
         t.project_id    = issue.project.id
         t.user_id       = issue.author.id
