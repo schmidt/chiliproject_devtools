@@ -15,13 +15,13 @@ namespace :dev do
         a
       end
     end
-    
+
     def populate_project(range)
-      used_names = []
+      used_names = Project.all.collect(&:name)
       Project.populate range do |p|
         while used_names.include? (name = "#{Populator.words(1).titleize}"); end
         used_names << name
-        p.name              = name
+        p.name              = name.slice(0..29)
         p.description       = Faker::Lorem.paragraphs
         p.created_on        = 3.months.ago..1.month.ago
         p.identifier        = name.underscore[([-name.underscore.length, -19].max)..-1]
@@ -29,7 +29,7 @@ namespace :dev do
         p.status            = 1
         p.lft               = p.id*2-1
         p.rgt               = p.id*2
-        p.homepage          = Faker::Internet.domain_name
+        p.homepage          = Faker::Internet.domain_name.slice(0..254)
         Redmine::AccessControl.available_project_modules.each do |name|
           EnabledModule.populate(1) do |m|
             m.name = name.to_s
@@ -50,13 +50,13 @@ namespace :dev do
     def populate_issues(range, project_id)
       Issue.populate range do |i|
         i.project_id      = project_id + 1
-        i.subject         = Faker::Company.bs
+        i.subject         = Faker::Company.bs.slice(0..254)
         i.description     = Faker::Lorem.paragraphs
         i.due_date        = 3.months.from_now..1.month.from_now
         i.category_id     = rand(IssueCategory.count) + 1
         i.status_id       = rand(IssueStatus.count) + 1
-        i.assigned_to_id  = rand(User.count) + 1
-        i.author_id       = rand(User.count) + 1
+        i.assigned_to_id  = rand(User.count - 2) + 3
+        i.author_id       = rand(User.count - 2) + 3
         i.created_on      = 3.months.ago..1.month.ago
         i.updated_on      = 1.month.ago..Time.now
         i.start_date      = 1.month.ago..Time.now
@@ -67,17 +67,28 @@ namespace :dev do
         i.lock_version    = 1
       end
     end
-    
+
     def populate_users(range)
+      used_names = User.all.collect(&:login)
       User.populate range do |u|
-        u.firstname       = Faker::Name.first_name
-        u.lastname        = Faker::Name.last_name
-        name              = "#{u.firstname} #{u.lastname}"
-        u.login           = Faker::Internet.user_name name
-        u.mail            = Faker::Internet.email name
+        first, last, name, mail, login = nil
+        loop do
+          first = Faker::Name.first_name.slice(0..29)
+          last  = Faker::Name.last_name.slice(0..29)
+          name  = "#{first} #{last}"
+          mail  = Faker::Internet.email(name).slice(0..59)
+          login = Faker::Internet.user_name(name).slice(0..29)
+          break unless used_names.include? login
+        end
+        used_names << login
+
+        u.firstname       = first
+        u.lastname        = last
+        u.login           = login
+        u.mail            = mail
         u.created_on      = 3.months.ago..1.month.ago
         u.last_login_on   = 1.month.ago..Time.now
-        u.hashed_password = User.hash_password("initial123")
+        u.hashed_password = User.hash_password("admin")
         u.status          = 1
         u.mail_notification = false
         u.admin           = (rand() >= 0.5)
@@ -139,7 +150,7 @@ namespace :dev do
     task :issue_custom_fields => [:prepare, :projects, :issues] do
       IssueCustomField.populate(Project.count) do |f|
         f.type            = "IssueCustomField"
-        f.name            = "#{Faker::Company.catch_phrase_id}"
+        f.name            = Faker::Company.catch_phrase_id.slice(0..29)
         f.field_format    = "string"
         f.possible_values = "--- []\n\n"
         f.min_length      = 0
@@ -198,13 +209,14 @@ namespace :dev do
     task :time_entries => [:prepare, :issues] do
       TimeEntry.populate ((Issue.count)..(Issue.count * 3)) do |t|
         issue = Issue.find(rand(Issue.count) + 1)
+        spent_on = (1..70).to_a.shuffle.first.days.ago.send(:to_date)
+
         t.project_id  = issue.project.id
         t.user_id     = issue.author.id
         t.issue_id    = issue.id
         t.hours       = 1..10
-        t.comments    = Faker::Lorem.paragraphs
+        t.comments    = Faker::Lorem.paragraphs.slice(0..254)
         t.activity_id = 9..10
-        spent_on = (1..100).to_a.shuffle.first.days.ago.send(:to_date)
         t.spent_on    = spent_on
         t.tyear       = spent_on.year
         t.tmonth      = spent_on.month
@@ -214,7 +226,7 @@ namespace :dev do
     
     desc "Assign users to projects"
     task :users_projects => [:users, :projects] do
-      User.all.each do |u|
+      User.all[2..-1].each do |u|
         projects = (Project.all / [1,2,3].shuffle.first).first
         projects.each do |p|
           Member.new.tap do |m|
@@ -228,11 +240,11 @@ namespace :dev do
     
     desc "Generate some time rates"
     task :rates => [:users_projects] do
-      User.count.times do |idx|
+      (User.count - 2).times do |idx|
         DefaultHourlyRate.populate 1 do |r|
           r.valid_from = 3.months.ago..2.months.ago
           r.rate       = 5..50
-          r.user_id    = idx + 1
+          r.user_id    = idx + 3
         end
       end
       Project.all.each do |p|
@@ -275,14 +287,15 @@ namespace :dev do
     task :cost_entries => [:issues, :cost_types] do
       CostEntry.populate (Issue.count..(Issue.count * 3)) do |t|
         issue = Issue.find(rand(Issue.count) + 1)
+        spent_on = (1..70).to_a.shuffle.first.days.ago.send(:to_date)
+
         t.project_id    = issue.project.id
         t.user_id       = issue.author.id
         t.issue_id      = issue.id
         t.units         = 1..10
-        t.comments      = Faker::Lorem.paragraphs
+        t.comments      = Faker::Lorem.paragraphs.slice(0..254)
         t.blocked       = false
-        spent_on = (1..100).to_a.shuffle.first.days.ago.send(:to_date)
-        t.spent_on      = spent_on        
+        t.spent_on      = spent_on
         t.tyear         = spent_on.year
         t.tmonth        = spent_on.month
         t.tweek         = spent_on.cweek
