@@ -16,9 +16,11 @@ namespace :dev do
       end
     end
     
-    def populate_project(range)      
+    def populate_project(range)
+      used_names = []
       Project.populate range do |p|
-        name = "#{Populator.words(1).titleize} #{p.id}"        
+        while used_names.include? (name = "#{Populator.words(1).titleize}"); end
+        used_names << name
         p.name              = name
         p.description       = Faker::Lorem.paragraphs
         p.created_on        = 3.years.ago..1.year.ago
