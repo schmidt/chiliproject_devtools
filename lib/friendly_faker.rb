@@ -73,8 +73,7 @@ Faker.class_eval do
       
       def catch_phrase
         @@catch_phrase ||= ["Marketing", "Development", "Graphics",
-          "Controlling", "Feedback", "Maintenance", "Service", "Payments"]
-          p "Remaining catch phrases: #{@@catch_phrase}"
+          "Controlling", "Feedback", "Maintenance", "Service", "Payments"]          
         @@catch_phrase.delete(@@catch_phrase.shuffle.first)
       end
     end

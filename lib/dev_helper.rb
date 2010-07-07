@@ -1,6 +1,5 @@
 begin
-  require 'ci/reporter/rake/rspec'     # use this if you're using RSpec
-  require 'ci/reporter/rake/cucumber'  # use this if you're using Cucumber
+  require 'ci/reporter/rake/rspec'     # use this if you're using RSpec  
   require 'ci/reporter/rake/test_unit' # use this if you're using Test::Unit
 rescue LoadError
   puts ("Missing the CI Reporter gem. Install timfel-ci_reporter or " +
