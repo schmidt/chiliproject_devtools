@@ -116,6 +116,8 @@ module DevHelper
   end
 
   def reset_db
+    Rake::Task["db:migrate:reset"].invoke
+    Rake::Task["db:schema:dump"].invoke
     Rake::Task["db:test:clone_structure"].invoke
   end
   
