@@ -97,7 +97,7 @@ module DevHelper
   
   def run_cruise_task(plugin, *args)
     args = ['unit', 'integration'] if args.empty?    
-    ENV['RAILS_ENV'] = 'test'
+    ENV['RAILS_ENV'] ||= 'test'
     cruise_task_prepare(plugin)
     args.each do |task|
       system_rake "#{plugin}:cruise:#{task}:internal"
