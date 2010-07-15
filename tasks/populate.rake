@@ -4,7 +4,7 @@ require 'customized_faker'
 namespace :dev do
   namespace :populate do
     
-    # Taken from _why's "Poignant Guide"
+    # Taken from _why's "Poignant Guide" - ok
     class Array
       def / len
         a = []
@@ -216,7 +216,7 @@ namespace :dev do
         t.issue_id    = issue.id
         t.hours       = 1..10
         t.comments    = ""
-        t.activity_id = 9..10
+        t.activity_id = TimeEntryActivity.all.shuffle.first.id
         t.spent_on    = spent_on
         t.tyear       = spent_on.year
         t.tmonth      = spent_on.month
