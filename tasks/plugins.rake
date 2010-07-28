@@ -36,22 +36,23 @@ namespace :dev do
         tasks_path = File.join cockpit_svn_root, plugin, "tasks"
         FileUtils.mkdir_p tasks_path
         File.open File.join(tasks_path, "cruise.yml"), 'w' do |f|
-          f << "
---- 
-:unit_tests: 
+          f << <<YAML
+---
+:unit_tests:
   :required_plugins:
   - dev_tools
   - redmine_cucumber
   :tasks:
   - test:plugins:#{plugin}
   - spec:plugins:#{plugin}
-:integration_sets: 
-  :telekom: 
+:integration_sets:
+  :telekom:
   - :redmine_picockpit_privacy
   - :redmine_costs
-  :siemens: 
+  :siemens:
   - :redmine_siemens_customizing
-  - :redmine_costs"  
+  - :redmine_costs
+YAML
         end
         File.open File.join(tasks_path, "cruise.rake"), 'a' do |f|
           f <<RUBY
