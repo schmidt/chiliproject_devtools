@@ -220,7 +220,7 @@ namespace :dev do
 
         t.project_id  = issue.project.id
         t.user_id     = issue.author.id
-        t.issue_id    = issue.id
+        t.issue_id    = ([issue.id] * 5 + [nil]).shuffle.first
         t.hours       = 1..10
         t.comments    = ""
         t.activity_id = TimeEntryActivity.all.shuffle.first.id
