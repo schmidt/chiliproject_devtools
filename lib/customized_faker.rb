@@ -12,7 +12,9 @@ Faker.class_eval do
           "Feedback",
           "Accounting",
           "Strategies"]
-        @@bs_category.delete(@@bs_category.shuffle.first)
+        ret = @@bs_category.delete(@@bs_category.shuffle.first)
+        @@bs_category = nil if @@bs_category.empty? # reset after we've gone through all
+        ret
       end
       
       def catch_phrase_id
@@ -23,7 +25,9 @@ Faker.class_eval do
           "WBF Information",
           "Management Sign",
           "eBook Reference"]
-        @@catch_phrase_id.delete(@@catch_phrase_id.shuffle.first)
+        ret = @@catch_phrase_id.delete(@@catch_phrase_id.shuffle.first)
+        @@catch_phrase_id = nil if @@catch_phrase_id.empty?
+        ret
       end
     end
   end
