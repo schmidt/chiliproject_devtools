@@ -328,6 +328,23 @@ namespace :dev do
           co.project_manager_signoff  = false
           co.client_signoff           = false
           co.fixed_date               = 2.month.ago..2.months.from_now
+        end
+      end
+    end
+
+    desc "Generate a few versions"
+    task :versions => [:projects] do |c|
+      first, second = Project.all / (Project.count / 3)
+      first += second unless second.nil?
+      first.each do |p|
+        Version.populate 2..4 do |co|
+          co.project_id     = p.id
+          co.name           = Faker::Company.bs
+          co.description    = Faker::Lorem.paragraphs(1)
+          co.effective_date = 2.month.ago..2.months.from_now
+          co.status         = 'open'
+          co.sharing        = 'none'
+        end
       end
     end
   end
@@ -346,13 +363,14 @@ namespace :dev do
     Rake::Task["dev:populate:cost_entries"].invoke
     Rake::Task["dev:populate:cost_rates"].invoke
     Rake::Task["dev:populate:rates"].invoke
+    Rake::Task["dev:populate:versions"].invoke
     reindex_all_pkeys
   end
 
   desc "generate everything"
   task :populate_lots => %w[populate:users populate:projects populate:subprojects populate:users_projects
     populate:issues populate:issue_custom_fields populate:time_entries populate:cost_entries
-    populate:cost_rates populate:rates] do
+    populate:cost_rates populate:rates populate:versions] do
       reindex_all_pkeys
   end
 end
