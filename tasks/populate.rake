@@ -16,6 +16,13 @@ namespace :dev do
       end
     end
 
+    # On PostgreSQL, the primary key sequence is not updated by Populator
+    def reindex_all_pkeys
+      ActiveRecord::Base.send(:subclasses).collect(&:table_name).each do |table|
+        ActiveRecord::Base.connection.reset_pk_sequence!(table)
+      end
+    end
+
     def populate_project(range)
       used_names = Project.all.collect(&:name)
       Project.populate range do |p|
@@ -320,10 +327,13 @@ namespace :dev do
     Rake::Task["dev:populate:cost_entries"].invoke
     Rake::Task["dev:populate:cost_rates"].invoke
     Rake::Task["dev:populate:rates"].invoke
+    reindex_all_pkeys
   end
 
   desc "generate everything"
-  task :populate_lots => %w[populate:users populate:projects populate:subprojects populate:users_projects 
-    populate:issues populate:issue_custom_fields populate:time_entries populate:cost_entries 
-    populate:cost_rates populate:rates]
+  task :populate_lots => %w[populate:users populate:projects populate:subprojects populate:users_projects
+    populate:issues populate:issue_custom_fields populate:time_entries populate:cost_entries
+    populate:cost_rates populate:rates] do
+      reindex_all_pkeys
+  end
 end
