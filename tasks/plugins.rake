@@ -66,7 +66,7 @@ namespace :"#{plugin}" do
   
   desc "Run unit tests for #{plugin}"
   task :'cruise:unit' do
-    run_unit_tests('#{plugin}')
+    run_unit_tests("#{plugin}")
   end
   
   desc "Run integration tests for #{plugin}"
@@ -80,11 +80,11 @@ namespace :"#{plugin}" do
   end
   
   task :'cruise:unit:internal' do
-    unit_tests('redmine_picockpit_privacy')
+    unit_tests("#{plugin}")
   end
   
   task :'cruise:integration:internal' do
-    integration_tests('redmine_picockpit_privacy')
+    integration_tests("#{plugin}")
   end
 end
 RUBY
