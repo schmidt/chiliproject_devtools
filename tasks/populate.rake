@@ -112,6 +112,16 @@ namespace :dev do
         c.unit_plural = "#{unit}s"
         c.default     = false
       end
+      CostType.all.each do |ct|
+        CostObject.all.each do |co|
+          MaterialBudgetItem.populate 0..1 do |m|
+            m.cost_object_id  = co.id
+            m.cost_type_id    = ct.id
+            m.comments        = ""
+            m.units           = 1..100
+          end
+        end
+      end
     end
 
     task :prepare => :environment do
@@ -270,10 +280,20 @@ namespace :dev do
           end
         end
       end
+      User.all.each do |u|
+        CostObject.all.each do |co|
+          LaborBudgetItem.populate 0..1 do |b|
+            b.cost_object_id  = co.id
+            b.hours           = 8..48
+            b.user_id         = u.id
+            b.comments        = ''
+          end
+        end
+      end
     end
 
     desc "Generate some cost_types"
-    task :cost_types, :count, :needs => [:prepare] do |t, args|
+    task :cost_types, :count, :needs => [:prepare, :cost_objects] do |t, args|
       count = args[:count].to_i unless (args[:count].to_i == 0)
       count ||= 2..5
       populate_cost_types count
