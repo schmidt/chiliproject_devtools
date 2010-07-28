@@ -72,6 +72,8 @@ namespace :dev do
         i.tracker_id      = 1..3
         i.priority_id     = 3..7
         i.lock_version    = 1
+        t.cost_object_id  = Project.find(project_id).cost_objects.shuffle.first.id if rand(3) != 0
+        # 1/3rd chance of no cost object
       end
     end
 
@@ -197,10 +199,10 @@ namespace :dev do
     end
 
     desc "generate some issues"
-    task :issues, :count, :needs => [:users, :projects] do |t, args|
+    task :issues, :count, :needs => [:users, :projects, :cost_objects] do |t, args|
       count = args[:count].to_i unless (args[:count].to_i == 0)
       count ||= 500..1000
-      Project.count.times do |id|        
+      Project.count.times do |id|
         populate_issues(count, id)
       end
     end
@@ -275,11 +277,11 @@ namespace :dev do
       count = args[:count].to_i unless (args[:count].to_i == 0)
       count ||= 2..5
       populate_cost_types count
-      CostType.first.tap do |c|        
+      CostType.first.tap do |c|
         c.default = true
       end.save!
     end
-    
+
     desc "Generate some cost rates"
     task :cost_rates => [:cost_types] do
       CostType.all.each do |ct|
@@ -311,8 +313,25 @@ namespace :dev do
         t.cost_type_id  = rand(CostType.count) + 1
       end
     end
+
+    desc "Generate a few cost objects"
+    task :cost_objects => [:projects] do |c|
+      first, second = Project.all / (Project.count / 3)
+      first += second unless second.nil?
+      first.each do |p|
+        CostObject.populate 1..2 do |co|
+          co.project_id               = p.id
+          co.author_id                = p.members.shuffle.first.user_id
+          co.subject                  = Faker::Company.bs_category
+          co.description              = Faker::Lorem.paragraphs(1)
+          co.type                     = "VariableCostObject"
+          co.project_manager_signoff  = false
+          co.client_signoff           = false
+          co.fixed_date               = 2.month.ago..2.months.from_now
+      end
+    end
   end
-  
+
   desc "generate everything"
   task :populate_few => :"dev:populate:prepare" do
     require 'friendly_faker'
