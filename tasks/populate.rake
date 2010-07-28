@@ -72,7 +72,7 @@ namespace :dev do
         i.tracker_id      = 1..3
         i.priority_id     = 3..7
         i.lock_version    = 1
-        t.cost_object_id  = Project.find(project_id).cost_objects.shuffle.first.id if rand(3) != 0
+        i.cost_object_id  = Project.find(project_id + 1).cost_objects.shuffle.first.try(:id) if rand(3) != 0
         # 1/3rd chance of no cost object
       end
     end
