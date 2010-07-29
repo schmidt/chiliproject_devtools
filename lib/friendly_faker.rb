@@ -18,7 +18,7 @@ Faker.class_eval do
       end
 
       def words(num = 3)
-        @@words ||= ["Mile", "Word", "Hour", "Graphic"]
+        @@words ||= ["Mile", "Word", "Slogan", "Graphic"]
         if num == 1
           @@words.delete(@@words.shuffle.last)
         else
