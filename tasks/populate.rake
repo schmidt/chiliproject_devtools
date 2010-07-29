@@ -18,8 +18,10 @@ namespace :dev do
 
     # On PostgreSQL, the primary key sequence is not updated by Populator
     def reindex_all_pkeys
-      ActiveRecord::Base.send(:subclasses).collect(&:table_name).each do |table|
-        ActiveRecord::Base.connection.reset_pk_sequence!(table)
+      if ActiveRecord::Base.connection.respond_to? :reset_pk_sequence!
+        ActiveRecord::Base.send(:subclasses).collect(&:table_name).each do |table|
+          ActiveRecord::Base.connection.reset_pk_sequence!(table)
+        end
       end
     end
 
