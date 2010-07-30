@@ -362,7 +362,7 @@ namespace :dev do
         Version.populate 2..4 do |co|
           co.project_id     = p.id
           co.name           = Faker::Company.bs
-          co.description    = Faker::Lorem.paragraphs(1)
+          co.description    = Faker::Lorem.paragraphs(1).slice(0..253)
           co.effective_date = 2.month.ago..2.months.from_now
           co.status         = 'open'
           co.sharing        = 'none'
