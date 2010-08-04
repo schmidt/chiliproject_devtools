@@ -3,7 +3,7 @@ require 'customized_faker'
 
 namespace :dev do
   namespace :populate do
-    
+
     # Taken from _why's "Poignant Guide" - ok
     class Array
       def / len
@@ -55,7 +55,7 @@ namespace :dev do
         p.save!
       end
     end
-    
+
     def populate_issues(range, project_id)
       Issue.populate range do |i|
         i.project_id      = project_id + 1
@@ -105,7 +105,7 @@ namespace :dev do
         u.admin           = (rand() >= 0.5)
       end
     end
-    
+
     def populate_cost_types(range)
       CostType.populate range do |c|
         unit = Faker::Lorem.words(1)
@@ -158,7 +158,7 @@ namespace :dev do
       count ||= 4..8
       populate_project(count)
     end
-    
+
     desc "Make some subprojects"
     task :subprojects => [:prepare, :projects] do
       top, bottom = Project.all / (Project.count / 2)
@@ -166,7 +166,7 @@ namespace :dev do
         bottom.each_with_index { |p,idx| p.set_parent!(top[idx]) }
       end
     end
-    
+
     desc "generate some issue custom fields with values"
     task :issue_custom_fields => [:prepare, :projects, :issues] do
       IssueCustomField.populate(5) do |f|
@@ -196,14 +196,14 @@ namespace :dev do
             v.customized_type = "Issue"
             v.customized_id   = project.issues[rand(project.issues.count) - 1].id
             v.custom_field_id = f.id
-            
+
             letters = 3.times.collect {|i| ("A".."C").to_a.shuffle.first}
             numbers = 2.times.collect {|i| ("0".."2").to_a.shuffle.first}
             type    = ["A", "B", "E", "G"].shuffle.first
             course  = letters.join + numbers.join + type
             ebook   = "A#{("0".."2").to_a.shuffle.first*2}_M#{("0".."2").to_a.shuffle.first*2}_L#{("0".."2").to_a.shuffle.first*2}"
             bogus   = "Evaluation required"
-            
+
             v.value = [course, course, course, ebook, ebook, bogus].shuffle.first
           end
         end
@@ -227,7 +227,7 @@ namespace :dev do
     end
 
     desc "Generate some time entries"
-    task :time_entries => [:prepare, :issues, :rates] do
+    task :time_entries => [:prepare, :issues] do
       TimeEntry.populate ((Issue.count)..(Issue.count * 3)) do |t|
         issue = Issue.find(rand(Issue.count) + 1)
         spent_on = (1..70).to_a.shuffle.first.days.ago.send(:to_date)
@@ -243,9 +243,8 @@ namespace :dev do
         t.tmonth      = spent_on.month
         t.tweek       = spent_on.cweek
       end
-      TimeEntry.all.each(&:update_costs!)
     end
-    
+
     desc "Assign users to projects"
     task :users_projects => [:users, :projects] do
       User.all[2..-1].each do |u|
@@ -260,7 +259,7 @@ namespace :dev do
         end
       end
     end
-    
+
     desc "Generate some time rates"
     task :rates => [:users_projects] do
       (User.count - 2).times do |idx|
@@ -316,7 +315,7 @@ namespace :dev do
             :cost_type => ct)
       end
     end
-    
+
     desc "Generate some cost entries"
     task :cost_entries => [:issues, :cost_types] do
       CostEntry.populate (Issue.count..(Issue.count * 3)) do |t|
@@ -385,8 +384,10 @@ namespace :dev do
     Rake::Task["dev:populate:cost_types"].invoke(3)
     Rake::Task["dev:populate:cost_entries"].invoke
     Rake::Task["dev:populate:cost_rates"].invoke
+    Rake::Task["dev:populate:rates"].invoke
     Rake::Task["dev:populate:versions"].invoke
     reindex_all_pkeys
+    TimeEntry.all.each(&:update_costs!)
   end
 
   desc "generate everything"
@@ -394,5 +395,6 @@ namespace :dev do
     populate:issues populate:issue_custom_fields populate:time_entries populate:cost_entries
     populate:cost_rates populate:rates populate:versions] do
       reindex_all_pkeys
+      TimeEntry.all.each(&:update_costs!)
   end
 end
