@@ -227,7 +227,7 @@ namespace :dev do
     end
 
     desc "Generate some time entries"
-    task :time_entries => [:prepare, :issues] do
+    task :time_entries => [:prepare, :issues, :rates] do
       TimeEntry.populate ((Issue.count)..(Issue.count * 3)) do |t|
         issue = Issue.find(rand(Issue.count) + 1)
         spent_on = (1..70).to_a.shuffle.first.days.ago.send(:to_date)
@@ -243,6 +243,7 @@ namespace :dev do
         t.tmonth      = spent_on.month
         t.tweek       = spent_on.cweek
       end
+      TimeEntry.all.each(&:update_costs!)
     end
     
     desc "Assign users to projects"
@@ -384,7 +385,6 @@ namespace :dev do
     Rake::Task["dev:populate:cost_types"].invoke(3)
     Rake::Task["dev:populate:cost_entries"].invoke
     Rake::Task["dev:populate:cost_rates"].invoke
-    Rake::Task["dev:populate:rates"].invoke
     Rake::Task["dev:populate:versions"].invoke
     reindex_all_pkeys
   end
