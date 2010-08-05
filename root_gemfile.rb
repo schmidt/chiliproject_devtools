@@ -17,7 +17,7 @@ end
 
 
 group :test do
-  gem "shoulda"
+  gem "shoulda", "~> 2.10.3"
   gem "mocha", :require => nil # ":require => nil" fixes obscure bugs - remove and run all tests
   gem "edavis10-object_daddy", :require => "object_daddy"
   gem "test-unit", "~> 1.2.3"
