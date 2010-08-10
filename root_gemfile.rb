@@ -7,7 +7,7 @@ gem "rubytree", "0.5.2", :require => "tree"
 gem "RedCloth", "~> 4.2.3", :require => "redcloth" # for CodeRay
 
 gem "sqlite3-ruby", :require => "sqlite3"
-gem "mysql"
+gem "mysql", :group => :mysql
 gem(RUBY_ENGINE == 'ruby' ? "pg" : "postgres")
 gem 'memcache-client'
 
