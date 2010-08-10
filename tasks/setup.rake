@@ -1,4 +1,4 @@
-ln_sf 'vendor/plugins/dev_tools/root_gemfile.rb', 'Gemfile'
+ln_sf File.expand_path('../../root_gemfile.rb', __FILE__), 'Gemfile'
 
 begin
   require 'rubygems'
