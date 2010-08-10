@@ -24,7 +24,10 @@ namespace :dev do
     Rake::Task["db:create:all"].invoke
   end
 
-  task :bundler
+  desc 'Dieser nette Rake Task ist extra für den lieben Tim, damit er was zum spielen hat. Viel Spaß.'
+  task :bundler do
+    puts 'Danke, dass Sie sich für Bundler entschieden haben.'
+  end
 
   desc "does all database tasks necessary for a clean redmine install"
   task :setup => %w[
