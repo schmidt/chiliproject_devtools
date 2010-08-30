@@ -11,6 +11,8 @@ gem "mysql", :group => :mysql
 gem(RUBY_ENGINE == 'ruby' ? "pg" : "postgres")
 gem 'memcache-client'
 
+gem "i18n"
+
 if RUBY_ENGINE !~ /jruby/
   gem 'mongrel'
 end
