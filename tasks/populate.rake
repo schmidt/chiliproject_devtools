@@ -338,7 +338,7 @@ namespace :dev do
 
     desc "Generate a few cost objects"
     task :cost_objects => [:projects] do |c|
-      first, second = Project.all / (Project.count / 3)
+      first, second = Project.all.reject { |p| p.members.empty? } / (Project.count / 3)
       first += second unless second.nil?
       first.each do |p|
         CostObject.populate 1..2 do |co|
