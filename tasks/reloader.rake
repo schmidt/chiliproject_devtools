@@ -25,7 +25,6 @@ namespace :dev do
     # Copyright (c) 2010 Jonathan Stott.
     # Released under the terms of the MIT License
     require 'directory_watcher'
-    require 'directory_watcher/rev_scanner'
 
     # deactivate the reloader, if necessary
     reloader_active = lambda do |activate|
