@@ -41,7 +41,7 @@ namespace :dev do
 
     LOGFILE = File.expand_path("../../lib/unicorn.log", __FILE__) # unicorn's log file
     PIDFILE = File.expand_path("../../lib/unicorn.pid", __FILE__) # unicorn's pid file
-    GLOB = ['**/*.rb', '**/*.rhtml'] # glob of the application's files
+    GLOB = ['**/*.rb', '**/*.rhtml', 'assets/**/*', 'locales/**/*.yml'] # glob of the application's files
 
     # remove the old log
     system "rm -f -- #{LOGFILE}"
@@ -54,9 +54,8 @@ namespace :dev do
 
     # open a watcher to read the log as it changes
     log_watch = DirectoryWatcher.new File.dirname(LOGFILE),
-    :glob => File.basename(LOGFILE),
-    :scanner => :rev,
-    :pre_load => true
+      :glob => File.basename(LOGFILE),
+      :pre_load => true
 
     # open the logfile
     log = File.open(LOGFILE)
@@ -66,26 +65,20 @@ namespace :dev do
       $stdout.puts log.read
     end
 
-
     # watch our plugins for changes
     dws = Dir.glob(File.join(Rails.root, "vendor/plugins/*")).inject([]) do |ary, dir|
       if FileTest.symlink?(dir) and File.directory?(dir)
         path = File.readlink(dir)
         dir = File.expand_path("../#{path}", dir)
       end
-      p "ADDING #{dir} TO WATCH LIST"
       ary << DirectoryWatcher.new(dir,
         :glob => GLOB,
-        :scanner => :rev,
         :pre_load => true)
     end
 
     # SIGHUP makes unicorn respawn workers
     dws.each do |dw|
       dw.add_observer do |*args|
-        p "=" * 20
-        p "RELOADING"
-        p "=" * 20
         Process.kill :HUP, pid
       end
     end
@@ -103,7 +96,6 @@ namespace :dev do
 
     log_watch.start
     dws.each(&:start)
-    puts "Hit RETURN to terminate"
     $stdin.gets # when the user hits "enter" the script will terminate
     stop.call(nil)
   end
