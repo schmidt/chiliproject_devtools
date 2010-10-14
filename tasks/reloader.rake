@@ -98,4 +98,6 @@ namespace :dev do
     $stdin.gets # when the user hits "enter" the script will terminate
     stop.call(nil)
   end
+
+  task :ss => :magical_reloading_sparkles
 end
