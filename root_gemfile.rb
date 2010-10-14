@@ -5,6 +5,7 @@ gem "rack", "1.0.1"
 
 gem "rubytree", "0.5.2", :require => "tree"
 gem "RedCloth", "~> 4.2.3", :require => "redcloth" # for CodeRay
+gem "nokogiri"
 
 gem "sqlite3-ruby", :require => "sqlite3"
 gem "mysql", :group => :mysql
