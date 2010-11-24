@@ -11,24 +11,39 @@ namespace :dev do
   end
 end
 
+namespace :redmine do
+  namespace :spec do
+    def define_rake_task(folder, options = {})
+      plugin_name = folder.to_s.split("/").last.to_sym
+      description = "Run specs in #{plugin_name}"
 
-namespace :spec do
-  namespace :plugins do
+      Spec::Rake::SpecTask.new(:"#{plugin_name}" => ["db:test:prepare", "dev:generate_rspec"]) do |t|
+        t.spec_opts = ['--options', "\"#{RAILS_ROOT}/spec/spec.opts\""]
+        t.spec_files = FileList["#{folder}/spec/**/*_spec.rb"]
+      end
 
-    Spec::Rake::SpecTask.new(:all => ["db:test:prepare", "dev:generate_rspec"]) do |t|
-      t.spec_opts = ['--options', "\"#{RAILS_ROOT}/spec/spec.opts\""]
-      t.spec_files = FileList['vendor/plugins/**{,/*/**}/spec/**/*_spec.rb'].exclude('vendor/plugins/rspec/*').exclude("vendor/plugins/rspec-rails/*")
     end
-    # alternative approach using plugin spec:plugin tasks
-    #
-    # task :all do |t|
-    #   plugin_spec_tasks = Rake.application.tasks.select { |t|
-    #     t.name =~ /^spec:plugins:/ && t.name != "spec:plugins:all"
-    #   }
-    #   plugin_spec_tasks.each do |t|
-    #     print "Running specs: #{t.name}\n"
-    #     t.invoke
-    #   end
-    # end
+
+    spec_folders = Dir.glob(File.join(RAILS_ROOT, "vendor/plugins/*/spec"))
+    # exclude failing Gravatar specs from Redmine Core
+    spec_folders.delete(File.join(RAILS_ROOT, "vendor/plugins/gravatar/spec")) 
+    spec_folders.each do |folder|
+      define_rake_task(File.dirname(folder))
+    end
+
+    task :all do
+      failure_occured = false
+      spec_folders.each do |folder|
+        plugin_name = File.dirname(folder).to_s.split("/").last.to_sym
+        
+        # run per-plugin specs in own processes
+        sh "rake redmine:spec:#{plugin_name}" do |ok|
+          failure_occured |= ok
+        end
+      end
+      if failure_occured
+        exit 1
+      end
+    end
   end
 end
