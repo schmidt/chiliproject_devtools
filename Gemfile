@@ -9,3 +9,5 @@ gem 'cucumber-rails'
 gem 'rspec-rails'
 gem 'directory_watcher'
 gem 'unicorn'
+gem "factory_girl",     "~> 1.2.4"
+

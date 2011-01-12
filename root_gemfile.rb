@@ -26,6 +26,7 @@ group :test do
   gem "edavis10-object_daddy", :require => "object_daddy"
   gem "test-unit", "~> 1.2.3"
   gem "rcov"
+  gem "factory_girl", "~> 1.2.4"
 end
 
 # Load plugins' Gemfiles
