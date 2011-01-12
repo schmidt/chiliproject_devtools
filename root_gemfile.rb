@@ -25,6 +25,7 @@ group :test do
   gem "mocha", :require => nil # ":require => nil" fixes obscure bugs - remove and run all tests
   gem "edavis10-object_daddy", :require => "object_daddy"
   gem "test-unit", "~> 1.2.3"
+  gem "ruby-debug"
   gem "rcov"
   gem "factory_girl", "~> 1.2.4"
 end
