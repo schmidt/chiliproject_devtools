@@ -32,16 +32,16 @@ namespace :redmine do
     end
 
     task :all do
-      failure_occured = false
+      success = true
       spec_folders.each do |folder|
         plugin_name = File.dirname(folder).to_s.split("/").last.to_sym
         
         # run per-plugin specs in own processes
-        sh "rake redmine:spec:#{plugin_name}" do |ok|
-          failure_occured |= ok
+        sh "rake redmine:spec:#{plugin_name}" do |ok, res|
+          success &= ok
         end
       end
-      if failure_occured
+      if not success
         exit 1
       end
     end
