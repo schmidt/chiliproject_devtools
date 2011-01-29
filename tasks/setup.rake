@@ -44,7 +44,7 @@ namespace :dev do
       db:migrate:plugins db:schema:dump
       db:test:prepare
     ]
-    sh "bundle exec rake #{post_setup.join(' ')}"
+    sh "bundle exec rake #{post_setup.join(' ')} --trace"
   end
 
 end
