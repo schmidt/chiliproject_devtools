@@ -40,10 +40,11 @@ namespace :dev do
     Dir["vendor/schmugins_*"].each do |f|
       FileUtils.mv(f, f.sub("schmugins_", "plugins/"))
     end
-    %w[redmine:load_default_data
+    post_setup = %w[redmine:load_default_data
       db:migrate:plugins db:schema:dump
       db:test:prepare
-    ].each {|t| Rake::Task[t].invoke }
+    ]
+    sh "bundle exec rake #{post_setup.join(' ')}"
   end
 
 end
