@@ -17,6 +17,7 @@ gem 'memcache-client'
 
 if RUBY_ENGINE !~ /jruby/
   gem 'mongrel'
+  gem 'thin'
 end
 
 
