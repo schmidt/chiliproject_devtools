@@ -42,9 +42,19 @@ namespace :dev do
     end
     post_setup = %w[redmine:load_default_data
       db:migrate:plugins db:schema:dump
-      db:test:prepare
     ]
     sh "bundle exec rake #{post_setup.join(' ')} --trace"
+    begin
+      Rake::Task["db:test:prepare"].invoke
+    rescue
+      puts <<-EOS
+        \033[0;31m\033[5m####################################################\033[0m
+        \033[0;31m\033[5m#   Something went wrong during db:test:prepare.   #\033[0m
+        \033[0;31m\033[5m#    This is not fatal for deployment, but you     #\033[0m
+        \033[0;31m\033[5m#         won't be able to run the tests.          #\033[0m
+        \033[0;31m\033[5m####################################################\033[0m
+      EOS
+    end
   end
 
 end
