@@ -9,6 +9,7 @@ gem "nokogiri"
 
 gem "sqlite3-ruby", :require => "sqlite3"
 gem "mysql", :group => :mysql
+gem "mysql2", :group => :mysql2
 gem(RUBY_ENGINE == 'ruby' ? "pg" : "postgres")
 gem 'memcache-client'
 
