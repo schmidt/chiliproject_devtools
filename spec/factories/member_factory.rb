@@ -1,4 +1,4 @@
 Factory.define :member do |m|
-  m.user    Factory.build :user
-  m.project Factory.build :project
+  m.association    :user, :factory => :user
+  m.association    :project, :factory => :project
 end
