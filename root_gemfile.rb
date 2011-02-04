@@ -6,9 +6,11 @@ gem "rack", "1.0.1"
 gem "rubytree", "0.5.2", :require => "tree"
 gem "RedCloth", "~> 4.2.3", :require => "redcloth" # for CodeRay
 gem "nokogiri"
+gem "hoe", "2.8.0"
 
 gem "sqlite3-ruby", :require => "sqlite3"
 gem "mysql", :group => :mysql
+gem "mysql2", :group => :mysql2
 gem(RUBY_ENGINE == 'ruby' ? "pg" : "postgres")
 gem 'memcache-client'
 
@@ -16,6 +18,7 @@ gem 'memcache-client'
 
 if RUBY_ENGINE !~ /jruby/
   gem 'mongrel'
+  gem 'thin'
 end
 
 

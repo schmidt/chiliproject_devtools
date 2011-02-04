@@ -374,18 +374,18 @@ namespace :dev do
   desc "generate everything"
   task :populate_few => :"dev:populate:prepare" do
     require 'friendly_faker'
-    Rake::Task["dev:populate:users"].invoke(4)
-    Rake::Task["dev:populate:projects"].invoke(4)
-    Rake::Task["dev:populate:subprojects"].invoke
-    Rake::Task["dev:populate:users_projects"].invoke
-    Rake::Task["dev:populate:issues"].invoke(10)
-    Rake::Task["dev:populate:issue_custom_fields"].invoke
-    Rake::Task["dev:populate:time_entries"].invoke
-    Rake::Task["dev:populate:cost_types"].invoke(3)
-    Rake::Task["dev:populate:cost_entries"].invoke
-    Rake::Task["dev:populate:cost_rates"].invoke
-    Rake::Task["dev:populate:rates"].invoke
-    Rake::Task["dev:populate:versions"].invoke
+    begin; Rake::Task["dev:populate:users"].invoke(4); rescue; end
+    begin; Rake::Task["dev:populate:projects"].invoke(4); rescue; end
+    begin; Rake::Task["dev:populate:subprojects"].invoke; rescue; end
+    begin; Rake::Task["dev:populate:users_projects"].invoke; rescue; end
+    begin; Rake::Task["dev:populate:issues"].invoke(10); rescue; end
+    begin; Rake::Task["dev:populate:issue_custom_fields"].invoke; rescue; end
+    begin; Rake::Task["dev:populate:time_entries"].invoke; rescue; end
+    begin; Rake::Task["dev:populate:cost_types"].invoke(3); rescue; end
+    begin; Rake::Task["dev:populate:cost_entries"].invoke; rescue; end
+    begin; Rake::Task["dev:populate:cost_rates"].invoke; rescue; end
+    begin; Rake::Task["dev:populate:rates"].invoke; rescue; end
+    begin; Rake::Task["dev:populate:versions"].invoke; rescue; end
     reindex_all_pkeys
     TimeEntry.all.each(&:update_costs!)
   end
