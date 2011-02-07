@@ -1,8 +1,8 @@
 Factory.define :user do |u|
   u.firstname 'Bob'
   u.lastname 'Bobbit'
-  u.login 'bob'
-  u.mail 'bob.bobbit@bob.com'
+  u.sequence(:login) { |n| "bob#{n}" }
+  u.sequence(:mail) {|n| "bob#{n}.bobbit@bob.com" }
   u.password 'T3stT3st'
   u.password_confirmation 'T3stT3st'
   u.mail_notification true
