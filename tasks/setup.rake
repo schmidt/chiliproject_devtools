@@ -1,9 +1,16 @@
-ln_sf File.expand_path('../../root_gemfile.rb', __FILE__), 'Gemfile'
-
 begin
   require 'rubygems'
   require 'bundler'
-  Bundler.setup
+  begin
+    Bundler.setup
+  rescue Bundler::GemfileNotFound
+      puts <<-EOS
+        \033[0;31m\033[5m#############################\033[0m
+        \033[0;31m\033[5m#\033[0m    You need a Gemfile!    \033[0;31m\033[5m#\033[0m
+        \033[0;31m\033[5m#\033[0m`\033[1;33mrake dev:download_gemfile\033[0m`\033[0;31m\033[5m#\033[0m
+        \033[0;31m\033[5m#############################\033[0m
+      EOS
+  end
 rescue LoadError
   puts <<-EOS
     \033[0;31m\033[5m#############################\033[0m
@@ -27,6 +34,16 @@ namespace :dev do
   desc 'Dieser nette Rake Task ist extra für den lieben Tim, damit er was zum spielen hat. Viel Spaß.'
   task :bundler do
     puts 'Danke, dass Sie sich für Bundler entschieden haben.'
+  end
+
+  task :download_gemfile do
+    require 'lib/redmine/version'
+    ENV['URL'] ||= if Redmine::VERSION::MAJOR == 0
+      'https://github.com/finnlabs/chiliproject-gemfile/raw/0-9-stable/Gemfile'
+    else
+      'https://github.com/finnlabs/chiliproject-gemfile/raw/master/Gemfile'
+    end
+    `wget --no-check-cert #{ENV['URL']} -O Gemfile`
   end
 
   desc "does all database tasks necessary for a clean redmine install"
