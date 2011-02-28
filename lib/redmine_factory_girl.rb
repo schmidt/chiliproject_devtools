@@ -49,7 +49,7 @@ Factory.send(:include, RedmineFactoryGirl::FactoryPatch)
 factory_dirs = Dir["vendor/plugins/*/spec/factories"]
 
 factory_dirs.each do |dir_name|
-  files = Dir.new(dir_name).entries.grep /.*\.rb/
+  files = Dir.new(dir_name).entries.grep /^[^\.].*\.rb$/
   files.each do |file_name|
     require File.join(dir_name, file_name)
   end
