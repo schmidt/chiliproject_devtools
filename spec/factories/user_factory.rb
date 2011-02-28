@@ -3,8 +3,8 @@ Factory.define :user do |u|
   u.lastname 'Bobbit'
   u.sequence(:login) { |n| "bob#{n}" }
   u.sequence(:mail) {|n| "bob#{n}.bobbit@bob.com" }
-  u.password 'T3stT3st'
-  u.password_confirmation 'T3stT3st'
+  u.password 'admin'
+  u.password_confirmation 'admin'
 
   Redmine::VERSION::MAJOR > 0 ? u.mail_notification('all') : u.mail_notification(true)
 
