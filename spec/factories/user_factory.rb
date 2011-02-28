@@ -5,7 +5,9 @@ Factory.define :user do |u|
   u.sequence(:mail) {|n| "bob#{n}.bobbit@bob.com" }
   u.password 'T3stT3st'
   u.password_confirmation 'T3stT3st'
-  u.mail_notification true
+
+  Redmine::VERSION::MAJOR > 0 ? u.mail_notification('all') : u.mail_notification(true)
+
   u.language 'en'
   u.status User::STATUS_ACTIVE
   u.admin false
