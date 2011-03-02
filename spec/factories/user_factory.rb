@@ -6,7 +6,7 @@ Factory.define :user do |u|
   u.password 'admin'
   u.password_confirmation 'admin'
 
-  Redmine::VERSION::MAJOR > 0 ? u.mail_notification('all') : u.mail_notification(true)
+  u.mail_notification(Redmine::VERSION::MAJOR > 0 ? 'all' : true)
 
   u.language 'en'
   u.status User::STATUS_ACTIVE
