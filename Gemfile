@@ -4,6 +4,9 @@ gem 'rack-contrib'
 gem 'ruby-prof'
 gem 'rspec', '~> 1.3.0'
 gem 'cucumber'
+# Adding stronger dependency to gherkin since 2.3.4 does not install on our ci
+# server.  Whenever cucumber is removed, this dependency may also be removed.
+gem 'gherkin', '!= 2.3.4'
 gem 'culerity'
 gem 'cucumber-rails'
 gem 'rspec-rails'
