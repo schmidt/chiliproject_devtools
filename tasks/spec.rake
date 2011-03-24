@@ -23,7 +23,7 @@ namespace :redmine do
         t.spec_files = FileList["#{folder}/spec/**/*_spec.rb"]
       end
 
-      task short_name => plugin_name
+      task short_name => plugin_name unless short_name == plugin_name
     end
 
     spec_folders = Dir.glob(File.join(RAILS_ROOT, "vendor/plugins/*/spec"))
