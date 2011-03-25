@@ -1,0 +1,28 @@
+= Redmine/ChiliProject Dev Tools
+
+This Rails plugin provides helper methods, factories and rake tasks that ease
+our development of Redmine/ChiliProject plugins.
+
+This software is currently undocumented. Sorry for that. We are also not sure,
+if you want to use it for your development. We are releasing it anyway, so that
+everybody is able to run the tests, that come with our published
+Redmine/ChiliProject plugins.
+
+== Requirements
+
+This plugin aims to be compatible with
+
+* Redmine 0.9
+* Redmine 1.1.x
+* ChiliProject 1.x
+
+Other requirements are defined in the Gemfile.
+
+If you are running into compatibility issues, please report a bug in the
+project's issue tracker.
+
+== Licence
+
+(c) 2011 - Finn GmbH - Berlin, Germany
+
+This plugin is licensed under the GNU GPL v2. See COPYRIGHT.txt and GPL.txt for details.
