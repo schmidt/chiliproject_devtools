@@ -12,12 +12,17 @@ begin
       EOS
   end
 rescue LoadError
-  puts <<-EOS
-    \033[0;31m\033[5m#############################\033[0m
-    \033[0;31m\033[5m#\033[0m       Hey, yo, you!       \033[0;31m\033[5m#\033[0m
-    \033[0;31m\033[5m#\033[0m   `\033[1;33mgem install bundler\033[0m`   \033[0;31m\033[5m#\033[0m
-    \033[0;31m\033[5m#############################\033[0m
-  EOS
+  if $!.message == 'no such file to load -- bundler'
+    puts <<-EOS
+      \033[0;31m\033[5m#############################\033[0m
+      \033[0;31m\033[5m#\033[0m       Hey, yo, you!       \033[0;31m\033[5m#\033[0m
+      \033[0;31m\033[5m#\033[0m   `\033[1;33mgem install bundler\033[0m`   \033[0;31m\033[5m#\033[0m
+      \033[0;31m\033[5m#############################\033[0m
+    EOS
+    exit 1
+  else
+    raise
+  end
 end
 
 namespace :dev do
