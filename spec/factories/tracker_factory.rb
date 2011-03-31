@@ -11,5 +11,10 @@ end
 
 Factory.define :tracker_suport, :parent => :tracker_bug do |t|
   t.name "Support"
-  t.position 1
+  t.position 3
+end
+
+Factory.define :tracker_task, :parent => :tracker_bug do |t|
+  t.name "Task"
+  t.position 4
 end
