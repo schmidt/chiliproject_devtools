@@ -1,3 +1,8 @@
+Factory.define :tracker do |t|
+  t.position { Tracker.find(:last, :order => 'position').position + 1 }
+  t.name { |a| "Tracker #{a.position}" }
+end
+
 Factory.define :tracker_bug, :class => Tracker do |t|
   t.name "Bug"
   t.is_in_chlog true
