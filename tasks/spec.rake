@@ -35,6 +35,19 @@ namespace :redmine do
 
     task :all do
       success = true
+
+      if ENV.has_key?("TEST_PART")
+        tests = spec_folders
+        part_of = ENV["TEST_PART"].split("of")
+        part = part_of.first.to_f
+        total_parts = part_of.last.to_i
+        test_count = tests.length
+        parts = ((part - 1)/total_parts * test_count).to_i..(((part)/total_parts * test_count) - 1).to_i
+        tests = tests[parts]
+        puts "rspec TEST_PART: Selected #{parts} out of #{test_count} tests. Part numbering begins with zero."
+        spec_folders = tests
+      end
+
       spec_folders.each do |folder|
         plugin_name = File.dirname(folder).to_s.split("/").last.to_sym
 
