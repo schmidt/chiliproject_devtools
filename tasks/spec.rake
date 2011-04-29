@@ -37,7 +37,7 @@ namespace :redmine do
       success = true
 
       if ENV.has_key?("TEST_PART")
-        tests = spec_folders
+        tests = spec_folders.sort
         part_of = ENV["TEST_PART"].split("of")
         part = part_of.first.to_f
         total_parts = part_of.last.to_i
