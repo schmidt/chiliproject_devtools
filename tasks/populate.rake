@@ -153,7 +153,7 @@ namespace :dev do
     end
 
     desc "generate some project fake projects"
-    task :projects, :count, :needs => [:prepare, :users, :issue_statuses] do |t, args|
+    task :projects, [:count] => [:prepare, :users, :issue_statuses] do |t, args|
       count = args[:count].to_i unless (args[:count].to_i == 0)
       count ||= 4..8
       populate_project(count)
@@ -211,7 +211,7 @@ namespace :dev do
     end
 
     desc "generate some issues"
-    task :issues, :count, :needs => [:users, :projects, :cost_objects] do |t, args|
+    task :issues, [:count] => [:users, :projects, :cost_objects] do |t, args|
       count = args[:count].to_i unless (args[:count].to_i == 0)
       count ||= 500..1000
       Project.count.times do |id|
@@ -220,7 +220,7 @@ namespace :dev do
     end
 
     desc "generate some user fake data"
-    task :users, :count, :needs => [:prepare] do |t, args|
+    task :users, [:count] => [:prepare] do |t, args|
       count = args[:count].to_i unless (args[:count].to_i == 0)
       count ||= 20..30
       populate_users count
@@ -295,7 +295,7 @@ namespace :dev do
     end
 
     desc "Generate some cost_types"
-    task :cost_types, :count, :needs => [:prepare, :cost_objects] do |t, args|
+    task :cost_types, [:count] => [:prepare, :cost_objects] do |t, args|
       count = args[:count].to_i unless (args[:count].to_i == 0)
       count ||= 2..5
       populate_cost_types count
