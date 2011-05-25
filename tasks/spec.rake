@@ -15,7 +15,7 @@ namespace :redmine do
   namespace :spec do
     def define_rake_task(folder, options = {})
       plugin_name = folder.to_s.split("/").last
-      short_name = plugin_name.sub /^redmine_/, ''
+      short_name = plugin_name.sub /^(redmine|chiliproject)_/, ''
       description = "Run specs in #{plugin_name}"
 
       Spec::Rake::SpecTask.new(plugin_name => ["db:test:prepare", "dev:generate_rspec"]) do |t|
