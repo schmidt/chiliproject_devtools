@@ -245,8 +245,24 @@ namespace :dev do
       end
     end
 
+    desc "Creates some non-builtin Roles"
+    task :roles do |t, args|
+      count = args[:count].to_i unless (args[:count].to_i == 0)
+      count ||= (4..8).to_a.shuffle.first
+      count.times do
+        Role.new.tap do |r|
+          r.builtin = 0
+          r.assignable = true
+          r.name = ["Manager", "Developer", "Designer", "PR", "Controller"].shuffle.first
+          while !(Role.find(:all, :conditions => "name = '#{r.name}'").empty?) do
+            r.name << rand(Role.all.size).to_s
+          end
+        end.save!
+      end
+    end
+
     desc "Assign users to projects"
-    task :users_projects => [:users, :projects] do
+    task :users_projects => [:users, :projects, :roles] do
       User.all[2..-1].each do |u|
         projects = (Project.all / [1,2,3].shuffle.first).first
         projects.each do |p|
@@ -376,6 +392,7 @@ namespace :dev do
     require 'friendly_faker'
     begin; Rake::Task["dev:populate:users"].invoke(4); rescue; end
     begin; Rake::Task["dev:populate:projects"].invoke(4); rescue; end
+    begin; Rake::Task["dev:populate:roles"].invoke(4); rescue; end
     begin; Rake::Task["dev:populate:subprojects"].invoke; rescue; end
     begin; Rake::Task["dev:populate:users_projects"].invoke; rescue; end
     begin; Rake::Task["dev:populate:issues"].invoke(10); rescue; end
@@ -393,7 +410,7 @@ namespace :dev do
   desc "generate everything"
   task :populate_lots => %w[populate:users populate:projects populate:subprojects populate:users_projects
     populate:issues populate:issue_custom_fields populate:time_entries populate:cost_entries
-    populate:cost_rates populate:rates populate:versions] do
+    populate:cost_rates populate:rates populate:versions populate:roles] do
       reindex_all_pkeys
       TimeEntry.all.each(&:update_costs!)
   end
