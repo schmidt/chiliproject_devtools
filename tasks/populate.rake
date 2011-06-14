@@ -211,7 +211,7 @@ namespace :dev do
     end
 
     desc "generate some issues"
-    task :issues, [:count] => [:users, :projects, :cost_objects] do |t, args|
+    task :issues, [:count] => [:users, :projects, :cost_objects, :trackers] do |t, args|
       count = args[:count].to_i unless (args[:count].to_i == 0)
       count ||= 500..1000
       Project.count.times do |id|
@@ -227,7 +227,7 @@ namespace :dev do
     end
 
     desc "Generate some time entries"
-    task :time_entries => [:prepare, :issues] do
+    task :time_entries => [:prepare, :issues, :time_entry_activities] do
       TimeEntry.populate ((Issue.count)..(Issue.count * 3)) do |t|
         issue = Issue.find(rand(Issue.count) + 1)
         spent_on = (1..70).to_a.shuffle.first.days.ago.send(:to_date)
@@ -245,6 +245,38 @@ namespace :dev do
       end
     end
 
+    desc "Create some TimeEntry Activities"
+    task :time_entry_activities do |t, args|
+      count = args[:count].to_i unless (args[:count].to_i == 0)
+      count ||= (4..8).to_a.shuffle.first
+      count.times do
+        TimeEntryActivity.new.tap do |a|
+          a.name = ["A", "B", "C", "D"].shuffle.first
+            while !((size = TimeEntryActivity.find(:all, :conditions => "name = '#{a.name}'").size) == 0) do
+              a.name << (size + 1).to_s
+            end
+          a.is_default = [true, false].shuffle.first
+          a.active = true
+        end.save!
+      end
+    end
+
+    desc "Create some Trackers"
+    task :trackers do |t, args|
+      count = args[:count].to_i unless (args[:count].to_i == 0)
+      count ||= (4..8).to_a.shuffle.first
+      count.times do
+        Tracker.new.tap do |t|
+          t.name = ["Bugs", "Features", "Party", "Expense"].shuffle.first
+          while !((size = Tracker.find(:all, :conditions => "name = '#{t.name}'").size) == 0) do
+            t.name << (size + 1).to_s
+          end
+          t.is_in_chlog = [true, false].shuffle.first
+          t.is_in_roadmap = [true, false].shuffle.first
+        end.save!
+      end
+    end
+
     desc "Creates some non-builtin Roles"
     task :roles do |t, args|
       count = args[:count].to_i unless (args[:count].to_i == 0)
@@ -254,8 +286,8 @@ namespace :dev do
           r.builtin = 0
           r.assignable = true
           r.name = ["Manager", "Developer", "Designer", "PR", "Controller"].shuffle.first
-          while !(Role.find(:all, :conditions => "name = '#{r.name}'").empty?) do
-            r.name << rand(Role.all.size).to_s
+          while !((size = Role.find(:all, :conditions => "name = '#{r.name}'").size) == 0) do
+            r.name << (size + 1).to_s
           end
         end.save!
       end
@@ -391,7 +423,9 @@ namespace :dev do
   task :populate_few => :"dev:populate:prepare" do
     require 'friendly_faker'
     begin; Rake::Task["dev:populate:users"].invoke(4); rescue; end
+    begin; Rake::Task["dev:populate:time_entry_activities"].invoke(4); rescue; end
     begin; Rake::Task["dev:populate:projects"].invoke(4); rescue; end
+    begin; Rake::Task["dev:populate:trackers"].invoke(4); rescue; end
     begin; Rake::Task["dev:populate:roles"].invoke(4); rescue; end
     begin; Rake::Task["dev:populate:subprojects"].invoke; rescue; end
     begin; Rake::Task["dev:populate:users_projects"].invoke; rescue; end
@@ -410,7 +444,7 @@ namespace :dev do
   desc "generate everything"
   task :populate_lots => %w[populate:users populate:projects populate:subprojects populate:users_projects
     populate:issues populate:issue_custom_fields populate:time_entries populate:cost_entries
-    populate:cost_rates populate:rates populate:versions populate:roles] do
+    populate:cost_rates populate:rates populate:versions populate:roles populate:trackers populate:time_entry_activities] do
       reindex_all_pkeys
       TimeEntry.all.each(&:update_costs!)
   end
