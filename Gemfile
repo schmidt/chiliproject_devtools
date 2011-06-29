@@ -10,3 +10,10 @@ gem 'unicorn'
 # server.  Whenever unicorn is removed, this dependency may also be removed.
 gem 'kgio', '~> 2.2.0'
 gem "factory_girl",     "~> 1.2.4"
+
+group :development, :test do
+  # remove once linecache 0.46 is released
+  gem "require_relative"
+  gem "ruby-debug"
+end
+
