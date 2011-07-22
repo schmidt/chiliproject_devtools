@@ -1,4 +1,4 @@
-$LOAD_PATH.unshift(File.expand_path(File.join(__FILE__, "..", "..", "lib")))
+$LOAD_PATH.unshift(File.expand_path(File.join(__FILE__, "..", "..")))
 require 'dev_helper'
 
 namespace :dev do
@@ -7,7 +7,7 @@ namespace :dev do
 
     desc "Lists available plugins"
     task :list do
-      puts Dir.glob("#{cockpit_svn_root}*").select{|f| File.directory? f }.collect do |p| 
+      puts Dir.glob("#{cockpit_svn_root}*").select{|f| File.directory? f }.collect do |p|
         File.basename(p)
       end.join(", ")
     end
