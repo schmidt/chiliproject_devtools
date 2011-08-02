@@ -16,7 +16,7 @@ namespace :redmine do
     def define_rake_task(folder, options = {})
       plugin_name = folder.to_s.split("/").last
       short_name = plugin_name.sub /^(redmine|chiliproject)_/, ''
-      description = "Run specs in #{plugin_name}"
+      desc "Run specs in #{plugin_name}"
 
       Spec::Rake::SpecTask.new(plugin_name => ["db:test:prepare", "dev:generate_rspec"]) do |t|
         t.spec_opts = ['--options', "\"#{RAILS_ROOT}/spec/spec.opts\""]
@@ -29,6 +29,8 @@ namespace :redmine do
     spec_folders = Dir.glob(File.join(RAILS_ROOT, "vendor/plugins/*/spec"))
     # exclude failing Gravatar specs from Redmine Core
     spec_folders.delete(File.join(RAILS_ROOT, "vendor/plugins/gravatar/spec"))
+    # exclude plugins with no models or controllers directory in spec
+    spec_folders.reject! {|f| (Dir.entries(f) & %w(models controllers)).empty?}
     spec_folders.each do |folder|
       define_rake_task(File.dirname(folder))
     end
