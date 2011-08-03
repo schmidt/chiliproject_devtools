@@ -24,7 +24,20 @@ namespace :redmine do
         t.spec_files ||= FileList["#{folder}/spec/**/*_spec.rb"]
       end
 
-      task short_name => plugin_name unless short_name == plugin_name
+      namespace short_name do
+        Dir.entries(File.join(folder, 'spec')).each do |f|
+          next if %w(. ..).include?(f)
+          next unless File.directory?("#{folder}/spec/#{f}")
+          next if FileList["#{folder}/spec/#{f}/**/*_spec.rb"].empty?
+          desc "Run #{f.singularize} specs in #{plugin_name}"
+          Spec::Rake::SpecTask.new(f => ["db:test:prepare", "dev:generate_rspec"]) do |t|
+            t.spec_opts = ['--options', "\"#{RAILS_ROOT}/spec/spec.opts\""]
+            t.spec_files = FileList["#{folder}/spec/#{f}/**/*_spec.rb"]
+          end
+        end
+      end
+
+      (desc "Run specs in #{plugin_name}"; task short_name => plugin_name) unless short_name == plugin_name
     end
 
     spec_folders = Dir.glob(File.join(RAILS_ROOT, "vendor/plugins/*/spec"))
