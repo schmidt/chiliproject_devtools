@@ -30,7 +30,7 @@ namespace :redmine do
     spec_folders = Dir.glob(File.join(RAILS_ROOT, "vendor/plugins/*/spec"))
     # exclude failing Gravatar specs from Redmine Core
     spec_folders.delete(File.join(RAILS_ROOT, "vendor/plugins/gravatar/spec"))
-    # exclude plugins with no models or controllers directory in spec
+    # exclude plugins with no specs
     spec_folders.reject! {|f| FileList["#{f}/**/*_spec.rb"].empty?}
     spec_folders.each do |folder|
       define_rake_task(File.dirname(folder))
