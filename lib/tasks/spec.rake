@@ -20,7 +20,8 @@ namespace :redmine do
 
       Spec::Rake::SpecTask.new(plugin_name => ["db:test:prepare", "dev:generate_rspec"]) do |t|
         t.spec_opts = ['--options', "\"#{RAILS_ROOT}/spec/spec.opts\""]
-        t.spec_files = FileList["#{folder}/spec/**/*_spec.rb"]
+        t.spec_files = FileList["#{folder}/spec/**/{#{ENV["SPEC_OBJS"]}}_spec.rb"] if ENV.has_key?("SPEC_OBJS")
+        t.spec_files ||= FileList["#{folder}/spec/**/*_spec.rb"]
       end
 
       task short_name => plugin_name unless short_name == plugin_name
