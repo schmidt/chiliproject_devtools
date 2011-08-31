@@ -16,19 +16,35 @@ namespace :redmine do
     def define_rake_task(folder, options = {})
       plugin_name = folder.to_s.split("/").last
       short_name = plugin_name.sub /^(redmine|chiliproject)_/, ''
-      description = "Run specs in #{plugin_name}"
+      desc "Run specs in #{plugin_name}"
 
       Spec::Rake::SpecTask.new(plugin_name => ["db:test:prepare", "dev:generate_rspec"]) do |t|
         t.spec_opts = ['--options', "\"#{RAILS_ROOT}/spec/spec.opts\""]
-        t.spec_files = FileList["#{folder}/spec/**/*_spec.rb"]
+        t.spec_files = FileList["#{folder}/spec/**/{#{ENV["SPEC_OBJS"]}}_spec.rb"] if ENV.has_key?("SPEC_OBJS")
+        t.spec_files ||= FileList["#{folder}/spec/**/*_spec.rb"]
       end
 
-      task short_name => plugin_name unless short_name == plugin_name
+      namespace short_name do
+        Dir.entries(File.join(folder, 'spec')).each do |f|
+          next if %w(. ..).include?(f)
+          next unless File.directory?("#{folder}/spec/#{f}")
+          next if FileList["#{folder}/spec/#{f}/**/*_spec.rb"].empty?
+          desc "Run #{f.singularize} specs in #{plugin_name}"
+          Spec::Rake::SpecTask.new(f => ["db:test:prepare", "dev:generate_rspec"]) do |t|
+            t.spec_opts = ['--options', "\"#{RAILS_ROOT}/spec/spec.opts\""]
+            t.spec_files = FileList["#{folder}/spec/#{f}/**/*_spec.rb"]
+          end
+        end
+      end
+
+      (desc "Run specs in #{plugin_name}"; task short_name => plugin_name) unless short_name == plugin_name
     end
 
     spec_folders = Dir.glob(File.join(RAILS_ROOT, "vendor/plugins/*/spec"))
     # exclude failing Gravatar specs from Redmine Core
     spec_folders.delete(File.join(RAILS_ROOT, "vendor/plugins/gravatar/spec"))
+    # exclude plugins with no specs
+    spec_folders.reject! {|f| FileList["#{f}/**/*_spec.rb"].empty?}
     spec_folders.each do |folder|
       define_rake_task(File.dirname(folder))
     end
