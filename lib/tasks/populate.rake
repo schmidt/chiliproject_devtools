@@ -72,7 +72,7 @@ namespace :dev do
         i.done_ratio      = 80..100
         i.estimated_hours = 1..10
         i.tracker_id      = 1..3
-        i.priority_id     = 3..7
+        i.priority_id     = IssuePriority.all.shuffle.first.try(:id) || rand(4) + 3
         i.lock_version    = 1
         i.cost_object_id  = Project.find(project_id + 1).cost_objects.shuffle.first.try(:id) if rand(3) != 0
         # 1/3rd chance of no cost object
