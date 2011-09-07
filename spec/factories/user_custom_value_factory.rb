@@ -14,3 +14,8 @@ Factory.define :boolean_user_custom_field, :parent => :user_custom_field do |cv|
   cv.name "BooleanUserCustomField"
   cv.field_format "bool"
 end
+
+Factory.define :integer_user_custom_field, :parent => :user_custom_field do |cv|
+  cv.name "IntegerUserCustomField"
+  cv.field_format "int"
+end
