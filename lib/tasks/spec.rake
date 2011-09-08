@@ -24,6 +24,18 @@ namespace :redmine do
         t.spec_files ||= FileList["#{folder}/spec/**/*_spec.rb"]
       end
 
+      desc "Run specs in #{plugin_name} with RCov"
+      Spec::Rake::SpecTask.new(plugin_name + ":rcov") do |t|
+        t.spec_opts = ['--options', "\"#{RAILS_ROOT}/spec/spec.opts\""]
+        t.spec_files = FileList["#{folder}/spec/**/{#{ENV["SPEC_OBJS"]}}_spec.rb"] if ENV.has_key?("SPEC_OBJS")
+        t.spec_files ||= FileList["#{folder}/spec/**/*_spec.rb"]
+        t.rcov = true
+        cov_dir = folder.sub(Regexp.new("^" + RAILS_ROOT + "/"), "")
+        t.rcov_opts = ['--exclude-only', ".",
+                       '--include-file', "#{cov_dir}/app,#{cov_dir}/lib",
+                       '--text-coverage', '--no-html' ]
+      end
+
       namespace short_name do
         Dir.entries(File.join(folder, 'spec')).each do |f|
           next if %w(. ..).include?(f)
