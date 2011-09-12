@@ -19,3 +19,18 @@ Factory.define :integer_user_custom_field, :parent => :user_custom_field do |cv|
   cv.name "IntegerUserCustomField"
   cv.field_format "int"
 end
+
+Factory.define :text_user_custom_field, :parent => :user_custom_field do |cv|
+  cv.name "TextUserCustomField"
+  cv.field_format "text"
+end
+
+Factory.define :string_user_custom_field, :parent => :user_custom_field do |cv|
+  cv.name "StringUserCustomField"
+  cv.field_format "string"
+end
+
+Factory.define :float_user_custom_field, :parent => :user_custom_field do |cv|
+  cv.name "FloatUserCustomField"
+  cv.field_format "float"
+end
