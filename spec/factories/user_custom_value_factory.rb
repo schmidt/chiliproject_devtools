@@ -40,3 +40,8 @@ Factory.define :list_user_custom_field, :parent => :user_custom_field do |cv|
   cv.field_format "list"
   cv.possible_values ["1", "2", "3", "4", "5", "6", "7"]
 end
+
+Factory.define :date_user_custom_field, :parent => :user_custom_field do |cv|
+  cv.name "DateUserCustomField"
+  cv.field_format "date"
+end
