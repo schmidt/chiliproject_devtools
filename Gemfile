@@ -13,8 +13,9 @@ gem 'kgio', '~> 2.2.0'
 gem "factory_girl",     "~> 1.2.4"
 
 group :development, :test do
-  # remove once linecache 0.46 is released
-  gem "require_relative"
-  gem "ruby-debug"
+  gem "ruby-debug",   :platforms => :mri_18
+  gem "ruby-debug19", :platforms => :mri_19
+
+  gem 'test-unit', '~> 1.2.3', :platforms => :ruby_19
 end
 
