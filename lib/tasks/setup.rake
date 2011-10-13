@@ -54,7 +54,7 @@ namespace :dev do
   desc "does all database tasks necessary for a clean redmine install"
   task :setup => %w[generate_session_store prepare_setup] do
     p "Moving redmine plugins away, in case they break migrations"
-    Dir["vendor/plugins/redmine_*"].each do |f|
+    Dir["vendor/plugins/redmine_*", "vendor/plugins/chiliproject_*"].each do |f|
       FileUtils.mv(f, f.sub("plugins/", "schmugins_"))
     end
     Rake::Task["db:migrate"].invoke
