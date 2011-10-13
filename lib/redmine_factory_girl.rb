@@ -46,7 +46,7 @@ end
 Factory.send(:include, RedmineFactoryGirl::FactoryPatch)
 
 
-factory_dirs = Dir["vendor/plugins/*/spec/factories"]
+factory_dirs = Dir["vendor/plugins/*/spec/factories"].sort_by{|dir| (dir.include? "dev_tools") ? "000" : dir}
 
 factory_dirs.each do |dir_name|
   files = Dir.new(dir_name).entries.grep /^[^\.].*\.rb$/
