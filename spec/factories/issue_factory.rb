@@ -1,7 +1,7 @@
 Factory.define :issue do |i|
   i.association :priority, :factory => :priority
-  i.subject "Can't print recipes because you have to cook them"
-  i.description "Unable to print recipes"
+  i.sequence(:subject) { |n| "Issue No. #{n}" }
+  i.description { |i| "Description for '#{i.subject}'" }
   i.association :tracker, :factory => :tracker_feature
   i.association :author, :factory => :user
 end
